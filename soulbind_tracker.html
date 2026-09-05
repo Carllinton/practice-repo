@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apostle Arena — GM Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Cinzel:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0a0b12;
+    --panel:#12141f;
+    --panel-raised:#181b29;
+    --gold:#c9a961;
+    --gold-dim:#7d6a3f;
+    --crimson:#8c2f3a;
+    --crimson-bright:#d84a58;
+    --celeste:#4a6fa5;
+    --nocturne:#7a5ea8;
+    --radiance:#c9903f;
+    --parchment:#e9e2cd;
+    --parchment-dim:#a39c8a;
+    --line:#2a2d3d;
+    --good:#5a9c6e;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 15% 10%, rgba(74,111,165,0.10), transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(140,47,58,0.10), transparent 40%),
+      var(--ink);
+    color:var(--parchment);
+    font-family:'Inter', -apple-system, sans-serif;
+    min-height:100vh;
+    padding:28px 20px 60px;
+  }
+  h1,h2,h3{font-family:'Cinzel', 'Cormorant Garamond', serif; letter-spacing:0.02em; margin:0;}
+
+  .stars{
+    position:fixed; inset:0; pointer-events:none; opacity:0.5;
+    background-image:
+      radial-gradient(1px 1px at 20px 30px, var(--parchment-dim), transparent),
+      radial-gradient(1px 1px at 140px 90px, var(--parchment-dim), transparent),
+      radial-gradient(1px 1px at 260px 40px, var(--parchment-dim), transparent),
+      radial-gradient(1px 1px at 340px 170px, var(--parchment-dim), transparent),
+      radial-gradient(1px 1px at 400px 60px, var(--parchment-dim), transparent);
+    background-repeat:repeat;
+    background-size:420px 220px;
+  }
+
+  .wrap{max-width:1320px; margin:0 auto; position:relative;}
+
+  header{
+    display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:18px;
+    border-bottom:1px solid var(--line); padding-bottom:18px; margin-bottom:22px;
+  }
+  header h1{font-size:28px; color:var(--gold); font-weight:700;}
+  header .sub{font-family:'Cormorant Garamond', serif; font-style:italic; color:var(--parchment-dim); font-size:15px; margin-top:4px;}
+  .win-target{text-align:right; font-family:'Cormorant Garamond', serif; color:var(--parchment-dim); font-size:14px;}
+  .win-target b{color:var(--gold); font-size:22px; font-family:'Cinzel',serif; display:block;}
+
+  .control-strip{
+    display:flex; flex-wrap:wrap; gap:14px; align-items:center;
+    background:var(--panel); border:1px solid var(--line); padding:14px 18px; margin-bottom:22px;
+    position:relative;
+  }
+  .control-strip::before, .control-strip::after{
+    content:""; position:absolute; width:10px; height:10px; border:1px solid var(--gold-dim);
+  }
+  .control-strip::before{top:-1px; left:-1px; border-right:none; border-bottom:none;}
+  .control-strip::after{bottom:-1px; right:-1px; border-left:none; border-top:none;}
+
+  .cs-group{display:flex; align-items:center; gap:8px;}
+  .cs-label{font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--parchment-dim);}
+  .phase-round{font-family:'Cinzel', serif; font-size:16px; color:var(--parchment);}
+  .phase-round .num{color:var(--gold);}
+  .cap-chip{
+    font-family:'Cinzel', serif; font-size:13px; background:var(--panel-raised); border:1px solid var(--gold-dim);
+    padding:4px 10px; color:var(--gold);
+  }
+  .deck-chip{
+    font-family:'Cinzel', serif; font-size:13px; background:var(--panel-raised); border:1px solid var(--nocturne);
+    padding:4px 10px; color:#c3b3e6;
+  }
+
+  select, input[type=number], input[type=text]{
+    background:var(--panel-raised); border:1px solid var(--line); color:var(--parchment);
+    font-family:'Inter', sans-serif; padding:6px 8px; font-size:13px;
+  }
+  select:focus, input:focus{outline:1px solid var(--gold); outline-offset:1px;}
+  select:disabled{opacity:0.4;}
+
+  button{
+    font-family:'Inter', sans-serif; font-weight:600; font-size:12.5px; letter-spacing:0.02em;
+    background:var(--panel-raised); color:var(--parchment); border:1px solid var(--gold-dim);
+    padding:7px 13px; cursor:pointer; transition:background 0.15s, border-color 0.15s;
+  }
+  button:hover{border-color:var(--gold); background:#1e2233;}
+  button:active{transform:translateY(1px);}
+  button:disabled{opacity:0.3; cursor:not-allowed;}
+  button.primary{background:var(--gold); color:#1a1200; border-color:var(--gold);}
+  button.primary:hover{background:#dab873;}
+  button.danger{border-color:var(--crimson);}
+  button.danger:hover{background:#2a1418; border-color:var(--crimson-bright);}
+  button.ghost{background:transparent;}
+  button.tiny{padding:4px 9px; font-size:11px;}
+  .btn-row{display:flex; gap:8px; flex-wrap:wrap;}
+  .spacer{flex:1;}
+
+  #winnerBanner{
+    display:none; background:linear-gradient(90deg, rgba(201,169,97,0.15), rgba(201,169,97,0.02));
+    border:1px solid var(--gold); padding:16px 20px; margin-bottom:22px; text-align:center;
+  }
+  #winnerBanner h2{color:var(--gold); font-size:22px;}
+  #winnerBanner p{font-family:'Cormorant Garamond', serif; font-style:italic; color:var(--parchment-dim); margin:4px 0 0;}
+
+  .player-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(270px, 1fr)); gap:16px; margin-bottom:26px;}
+  .player-card{position:relative; background:var(--panel); border:1px solid var(--line); padding:18px; transition:border-color 0.2s, box-shadow 0.2s;}
+  .player-card::before, .player-card::after{content:""; position:absolute; width:12px; height:12px; border:1px solid var(--gold-dim); opacity:0.7;}
+  .player-card::before{top:-1px; left:-1px; border-right:none; border-bottom:none;}
+  .player-card::after{bottom:-1px; right:-1px; border-left:none; border-top:none;}
+  .player-card.active{border-color:var(--gold); box-shadow:0 0 0 1px rgba(201,169,97,0.35), 0 0 26px rgba(201,169,97,0.08);}
+  .player-card.desperate{border-color:var(--crimson-bright);}
+  .player-card.corrupted .name-row .name{color:var(--crimson-bright);}
+
+  .name-row{display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; gap:8px;}
+  .name-row input.name{background:none; border:none; font-family:'Cinzel', serif; font-size:17px; color:var(--parchment); padding:2px 0; width:100%; border-bottom:1px dashed transparent;}
+  .name-row input.name:hover, .name-row input.name:focus{border-bottom:1px dashed var(--gold-dim);}
+  .badge-active{font-size:10px; text-transform:uppercase; letter-spacing:0.08em; color:#1a1200; background:var(--gold); padding:3px 7px; white-space:nowrap; display:none;}
+  .player-card.active .badge-active{display:inline-block;}
+
+  .stat-block{margin:12px 0;}
+  .stat-label{display:flex; justify-content:space-between; font-size:11px; text-transform:uppercase; letter-spacing:0.07em; color:var(--parchment-dim); margin-bottom:5px;}
+  .stat-label .val{color:var(--parchment); font-family:'Cinzel', serif; font-size:12.5px; letter-spacing:0;}
+
+  .bar-track{height:8px; background:#000; border:1px solid var(--line); position:relative; overflow:hidden;}
+  .bar-fill{height:100%; transition:width 0.25s ease;}
+  .bar-fill.vessel{background:linear-gradient(90deg,#5a2226,var(--crimson-bright));}
+  .bar-fill.souls{background:linear-gradient(90deg,#7a5f18,var(--gold));}
+
+  .stepper{display:flex; align-items:center; gap:6px;}
+  .stepper button{padding:3px 9px; font-size:14px; line-height:1;}
+  .stepper .amt{width:42px; text-align:center; font-family:'Cinzel', serif; font-size:14px; background:none; border:none; color:var(--parchment);}
+
+  .corruption-pips{display:flex; gap:4px; margin-top:6px;}
+  .pip{width:16px; height:16px; border:1px solid var(--gold-dim); background:var(--panel-raised); flex:1; position:relative;}
+  .pip.lit{background:var(--crimson); border-color:var(--crimson-bright);}
+  .pip.threshold{border-color:var(--gold);}
+  .status-tags{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; min-height:20px;}
+  .tag{font-size:10px; text-transform:uppercase; letter-spacing:0.05em; padding:2px 7px; border:1px solid var(--crimson-bright); color:var(--crimson-bright);}
+  .tag.warn{border-color:#b98a2e; color:#d9a53d;}
+  .tag.shield{border-color:var(--celeste); color:#8fb0dd;}
+  .tag.buff{border-color:var(--nocturne); color:#c3b3e6;}
+  .tag.freeze{border-color:#6f8fd4; color:#a9bdf0;}
+
+  .combat-mini{display:flex; gap:10px; margin-top:10px;}
+  .combat-mini div{flex:1; text-align:center; background:var(--panel-raised); border:1px solid var(--line); padding:6px 4px;}
+  .combat-mini div b{display:block; font-family:'Cinzel', serif; font-size:15px; color:var(--gold);}
+  .combat-mini div span{font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--parchment-dim);}
+
+  .hand-row{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:10px;}
+  .hand-row .stepper .amt{width:30px;}
+
+  .mini-actions{display:flex; gap:6px; flex-wrap:wrap; margin-top:12px; border-top:1px solid var(--line); padding-top:12px;}
+  .mini-actions button{flex:1; font-size:11px; padding:6px 6px;}
+
+  .panel-block{background:var(--panel); border:1px solid var(--line); padding:18px 20px; margin-bottom:22px; position:relative;}
+  .panel-block h3{color:var(--gold); font-size:16px; margin-bottom:14px;}
+  .resolver-row{display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;}
+  .field{display:flex; flex-direction:column; gap:4px;}
+  .field label{font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--parchment-dim);}
+  .field select, .field input{min-width:150px;}
+  .target-list{display:flex; flex-direction:column; gap:6px; background:var(--panel-raised); border:1px solid var(--line); padding:8px 10px; min-width:280px;}
+  .target-row{display:flex; align-items:center; gap:10px;}
+  .target-row .target-check{display:flex; align-items:center; gap:7px; flex:1; font-size:13px; color:var(--parchment); cursor:pointer;}
+  .target-row .target-check input{cursor:pointer;}
+  .target-row .target-def{font-family:'Cinzel', serif; font-size:11.5px; color:var(--celeste); white-space:nowrap; min-width:52px;}
+  .target-row .target-dmg{width:64px; text-align:center;}
+  .target-row.disabled{opacity:0.35;}
+  #resolveLog{margin-top:14px; font-family:'Cormorant Garamond', serif; font-size:14.5px; color:var(--parchment-dim); max-height:180px; overflow-y:auto; border-top:1px solid var(--line); padding-top:10px;}
+  #resolveLog div{margin-bottom:4px;}
+  #resolveLog div.log-win{color:var(--gold); font-weight:600;}
+  #resolveLog div.log-corrupt{color:var(--crimson-bright);}
+  #resolveLog div.log-card{color:#c3b3e6;}
+
+  .deck-groups{display:flex; flex-direction:column; gap:14px;}
+  .deck-group summary{
+    cursor:pointer; font-family:'Cinzel', serif; font-size:14px; padding:10px 16px;
+    background:var(--panel-raised); border:1px solid var(--line); list-style:none; display:flex; justify-content:space-between; align-items:center;
+  }
+  .deck-group summary::-webkit-details-marker{display:none;}
+  .deck-group[open] summary{border-bottom:none;}
+  .deck-group .count-tag{font-size:11px; color:var(--parchment-dim); font-family:'Inter',sans-serif;}
+  table.cardtable{width:100%; border-collapse:collapse; font-size:13px; border:1px solid var(--line); border-top:none;}
+  table.cardtable th{text-align:left; font-family:'Cinzel', serif; font-weight:500; font-size:10.5px; text-transform:uppercase; letter-spacing:0.05em; color:var(--parchment-dim); padding:9px 12px; border-bottom:1px solid var(--line);}
+  table.cardtable td{padding:9px 12px; border-bottom:1px solid var(--line); vertical-align:middle;}
+  table.cardtable tr:last-child td{border-bottom:none;}
+  table.cardtable td.cardname{font-family:'Cinzel', serif; white-space:nowrap;}
+  table.cardtable td.stats{white-space:nowrap; color:var(--gold); font-family:'Cinzel',serif; font-size:11.5px;}
+  table.cardtable td.remain{white-space:nowrap; text-align:center;}
+  table.cardtable td.remain input{width:46px; text-align:center;}
+  table.cardtable td.playcell{white-space:nowrap;}
+  table.cardtable td.playcell button{white-space:nowrap;}
+  .el-celeste{color:var(--celeste);}
+  .el-crimson{color:var(--crimson-bright);}
+  .el-nocturne{color:var(--nocturne);}
+  .el-radiance{color:var(--radiance);}
+
+  #playConsole{border:1px solid var(--gold-dim); background:#171a28;}
+  #playConsole .pc-title{font-family:'Cinzel', serif; color:var(--gold); font-size:14px; margin-bottom:4px;}
+  #playConsole .pc-effect{font-family:'Cormorant Garamond', serif; font-style:italic; color:var(--parchment-dim); font-size:14px; margin-bottom:12px;}
+  .pc-extra{display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-top:10px; font-size:13px;}
+  .pc-extra label{display:flex; align-items:center; gap:6px; color:var(--parchment-dim);}
+
+  .add-card-form{display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; margin-top:14px; padding-top:14px; border-top:1px dashed var(--line);}
+  .add-card-form .field input, .add-card-form .field select{min-width:110px;}
+  .add-card-form .field.wide input{min-width:220px;}
+
+  footer{text-align:center; color:var(--parchment-dim); font-family:'Cormorant Garamond', serif; font-style:italic; font-size:13px; margin-top:30px;}
+
+  @media (max-width: 640px){
+    header{flex-direction:column; align-items:flex-start;}
+    .win-target{text-align:left;}
+    table.cardtable{font-size:12px;}
+  }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>Apostle Arena</h1>
+      <div class="sub">Game Master's Ledger — souls, vessels, corruption &amp; the arcana deck</div>
+    </div>
+    <div class="win-target">Ascension at<b id="soulsTarget">25 Souls</b></div>
+  </header>
+
+  <div id="winnerBanner">
+    <h2 id="winnerName"></h2>
+    <p>fulfills their SoulBind Contract. The arena falls silent.</p>
+  </div>
+
+  <div class="control-strip">
+    <div class="cs-group">
+      <span class="cs-label">Apostles</span>
+      <select id="playerCountSelect">
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4" selected>4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+      </select>
+      <button id="newGameBtn" class="danger">New Game</button>
+    </div>
+
+    <div class="cs-group">
+      <span class="phase-round">Phase <span class="num" id="phaseNum">1</span> · Round <span class="num" id="roundNum">1</span><span style="color:var(--parchment-dim);">/3</span></span>
+    </div>
+
+    <div class="cs-group"><span class="cap-chip" id="capChip">5 CAP / turn</span></div>
+    <div class="cs-group"><span class="deck-chip" id="deckChip">Deck: 0 / 0 remaining</span></div>
+
+    <div class="cs-group">
+      <span class="cs-label">Rotation</span>
+      <button id="rotCW" class="ghost">↻ CW</button>
+      <button id="rotCCW" class="ghost">↺ CCW</button>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="cs-group">
+      <button id="drawBtn">Draw 1 (active)</button>
+      <button id="endTurnBtn" class="primary">End Turn →</button>
+    </div>
+  </div>
+
+  <div class="player-grid" id="playerGrid"></div>
+
+  <div class="panel-block">
+    <h3>Attack Resolver <span style="color:var(--parchment-dim); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:13px;">— hex grid: check every adjacent Apostle actually being struck</span></h3>
+    <div class="resolver-row">
+      <div class="field">
+        <label>Attacker</label>
+        <select id="attackerSelect"></select>
+      </div>
+      <div class="field" style="flex:1 1 320px;">
+        <label>Targets (adjacent) <span style="opacity:.6;">— DEF shown per Apostle, damage auto-suggested</span></label>
+        <div id="targetList" class="target-list"></div>
+      </div>
+      <div class="field">
+        <label>&nbsp;</label>
+        <button id="resolveBtn" class="primary">Resolve Attack</button>
+      </div>
+    </div>
+    <div id="resolveLog"></div>
+  </div>
+
+  <div class="panel-block" id="deckPanel">
+    <h3>Arcana Deck <span style="color:var(--parchment-dim); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:13px;">— ⚡ Quick Play applies a card instantly to the active Apostle; cards needing a target or a choice open a small console first</span></h3>
+
+    <div class="panel-block" id="playConsole" style="display:none; margin-bottom:16px;">
+      <div class="pc-title" id="pcTitle"></div>
+      <div class="pc-effect" id="pcEffect"></div>
+      <div class="resolver-row">
+        <div class="field">
+          <label>Played by</label>
+          <select id="pcActor"></select>
+        </div>
+        <div class="field" id="pcTargetField">
+          <label>Target</label>
+          <select id="pcTarget"></select>
+        </div>
+        <div class="field">
+          <label>&nbsp;</label>
+          <button id="pcConfirm" class="primary">Play Card</button>
+        </div>
+        <div class="field">
+          <label>&nbsp;</label>
+          <button id="pcCancel" class="ghost">Cancel</button>
+        </div>
+      </div>
+      <div class="pc-extra" id="pcExtra"></div>
+    </div>
+
+    <div class="deck-groups" id="deckGroups"></div>
+
+    <div class="add-card-form">
+      <div class="field">
+        <label>Element</label>
+        <select id="newCardElement">
+          <option value="Radiance">Radiance</option>
+          <option value="Celeste">Celeste</option>
+          <option value="Crimson">Crimson</option>
+          <option value="Nocturne">Nocturne</option>
+        </select>
+      </div>
+      <div class="field wide">
+        <label>Card name</label>
+        <input type="text" id="newCardName" placeholder="e.g. The Tower">
+      </div>
+      <div class="field wide">
+        <label>Effect text</label>
+        <input type="text" id="newCardEffect" placeholder="Short effect description">
+      </div>
+      <div class="field"><label>ATK</label><input type="number" id="newCardAtk" value="0"></div>
+      <div class="field"><label>DEF</label><input type="number" id="newCardDef" value="0"></div>
+      <div class="field"><label>CAP</label><input type="number" id="newCardCap" value="1"></div>
+      <div class="field"><label>Count</label><input type="number" id="newCardCount" value="1"></div>
+      <div class="field"><label>&nbsp;</label><button id="addCardBtn">Add Card</button></div>
+    </div>
+  </div>
+
+  <div class="btn-row" style="margin-bottom:24px;">
+    <button id="cycleDeckBtn">↺ Cycle Deck (reshuffle all counts)</button>
+  </div>
+
+  <footer>Corruption threshold 5 · Hand size of 8+ at round end gives +1 Corruption · Movement costs 2 CAP · Deck totals 52 (Celeste 11 · Crimson 16 · Nocturne 11 · Radiance 14) · Celeste's individual counts were unspecified in the source sheet — 11 was split evenly as a placeholder, edit the Remaining fields freely to match your physical deck.</footer>
+</div>
+
+<script>
+const STARTING_SOULS = {2:13, 3:9, 4:7, 5:6, 6:5};
+const SOULS_TO_WIN = 25;
+const MAX_VESSEL = 50;
+
+function capForPhase(phase){
+  if(phase === 1) return 5;
+  if(phase === 2 || phase === 3) return 8;
+  return 10;
+}
+
+// The Capacity a player resets to at the start of their turn: base phase capacity plus
+// any active temporary Capacity buffs (e.g. The Hermit's +2 for 2 rounds).
+function maxCapForPlayer(p){
+  return capForPhase(state.phase) + p.tempBuffs.reduce((s,b) => s + (b.cap||0), 0);
+}
+
+/* counts for Celeste were not given in the source material — reasonable defaults
+   assumed below (sum 11) so the deck totals stay close to 52; edit the count
+   fields in the Deck panel to match your physical deck exactly. */
+const CARD_CATALOG = [
+  {id:'fool', element:'Celeste', name:'The Fool', effect:"Reveals your opponent's entire current hand", atk:3, def:1, cap:1, count:2, effectType:'reveal'},
+  {id:'hierophant', element:'Celeste', name:'The Hierophant', effect:'Increases ATK and DEF by 2', atk:0, def:0, cap:2, count:2, effectType:'selfBuff', params:{atk:2, def:2}},
+  {id:'wheel', element:'Celeste', name:'Wheel of Fortune', effect:'Swap a random card from an opponent', atk:3, def:2, cap:3, count:2, effectType:'swap'},
+  {id:'justice', element:'Celeste', name:'Justice', effect:"Increases all opponents' corruption by 2", atk:0, def:2, cap:4, count:2, effectType:'corruptAllOpponents', params:{amount:2}},
+  {id:'temperance', element:'Celeste', name:'Temperance', effect:'Locks you out of further actions this round (may still draw); ATK/DEF +5 next round', atk:0, def:5, cap:5, count:2, effectType:'skipAndBuffNext', params:{atk:5, def:5}},
+  {id:'world', element:'Celeste', name:'The World', effect:"Stop all turns of all opponents besides you", atk:6, def:7, cap:8, count:1, effectType:'freezeOpponents'},
+
+  {id:'emperor', element:'Crimson', name:'The Emperor', effect:'DEF +2 and heals Vessel by 1', atk:2, def:4, cap:3, count:3, effectType:'heal', params:{heal:1}},
+  {id:'chariot', element:'Crimson', name:'The Chariot', effect:'ATK bonus scales with phase (P1 +3, P2–3 +3, P4+ +5)', atk:5, def:2, cap:3, count:3, effectType:'phaseATK', params:{p1:3, p23:3, p4:5}},
+  {id:'strength', element:'Crimson', name:'Strength', effect:'Reduce corruption by 2 (doubled if combined with another corruption-reducing card this turn)', atk:0, def:3, cap:3, count:5, effectType:'corruptionReduceCombo', params:{amount:2}},
+  {id:'tower', element:'Crimson', name:'The Tower', effect:"Decrease each opponent's capacity by 2 for 1 turn", atk:3, def:3, cap:6, count:2, effectType:'capDebuffOpponents', params:{amount:2}},
+  {id:'star', element:'Crimson', name:'The Star', effect:'Heals Vessel by 2; DEF +2 for 2 turns', atk:3, def:1, cap:2, count:3, effectType:'healAndTempDef', params:{heal:2, def:2, turns:2}},
+
+  {id:'highpriestess', element:'Nocturne', name:'The High Priestess', effect:'Draws an additional card before turn ends', atk:2, def:2, cap:2, count:3, effectType:'drawExtra', params:{amount:1}},
+  {id:'hermit', element:'Nocturne', name:'The Hermit', effect:'Capacity +2 for 2 rounds', atk:2, def:2, cap:2, count:2, effectType:'capBuffRounds', params:{amount:2, rounds:2}},
+  {id:'hangedman', element:'Nocturne', name:'The Hanged Man', effect:'If you have the lowest Vessel, ATK +5 for 2 turns', atk:3, def:5, cap:3, count:2, effectType:'conditionalLowestVesselATK', params:{amount:5, turns:2}},
+  {id:'death', element:'Nocturne', name:'Death', effect:'Executes an opponent if their Vessel is below 10', atk:7, def:4, cap:5, count:1, effectType:'executeIfLowVessel', params:{threshold:10}},
+  {id:'devil', element:'Nocturne', name:'The Devil', effect:"Increases opponent's corruption by 3, and your own by 1", atk:8, def:3, cap:6, count:1, effectType:'corruptOpponentAndSelf', params:{opp:3, self:1}},
+  {id:'moon', element:'Nocturne', name:'The Moon', effect:'If an opponent fails to break your DEF, increase their corruption by 2', atk:4, def:5, cap:5, count:2, effectType:'conditionalDefBreakCorrupt', params:{amount:2}},
+  {id:'magician', element:'Radiance', name:'The Magician', effect:'Current attack gains +1 ATK', atk:3, def:1, cap:1, count:3, effectType:'flatATKBonus', params:{amount:1}},
+  {id:'empress', element:'Radiance', name:'The Empress', effect:'Heals Vessel by 1 and reduces corruption by 2', atk:0, def:3, cap:3, count:5, effectType:'healAndReduceCorruption', params:{heal:1, corr:2}},
+  {id:'lovers', element:'Radiance', name:'The Lovers', effect:'Paired with a Radiance card: +2 ATK. Paired with another Lovers: +3 ATK', atk:3, def:3, cap:3, count:3, effectType:'pairBonus', params:{radiance:2, lovers:3}},
+  {id:'sun', element:'Radiance', name:'The Sun', effect:'Reduces corruption by 1 and heals Vessel by 2', atk:6, def:6, cap:6, count:2, effectType:'healAndReduceCorruption', params:{heal:2, corr:1}},
+  {id:'judgement', element:'Radiance', name:'Judgement', effect:"If the target's corruption is higher than yours, ATK +3", atk:5, def:3, cap:7, count:1, effectType:'conditionalCorruptionCompareATK', params:{amount:3}},
+];
+
+const NEEDS_TARGET = new Set(['reveal','swap','corruptOpponentAndSelf','executeIfLowVessel','conditionalDefBreakCorrupt','conditionalCorruptionCompareATK']);
+const NEEDS_EXTRA_UI = new Set(['pairBonus','conditionalDefBreakCorrupt']);
+// Cards that need neither a target pick nor an extra choice can be resolved in a single click,
+// applied on behalf of whoever is currently the active Apostle.
+function isQuickEligible(card){ return !NEEDS_TARGET.has(card.effectType) && !NEEDS_EXTRA_UI.has(card.effectType); }
+
+let state = null;
+let customCards = [];
+let pendingCard = null;
+
+function allCards(){ return CARD_CATALOG.concat(customCards); }
+function getCard(id){ return allCards().find(c => c.id === id); }
+
+// Draws one card at random from whatever copies remain in the deck, weighted
+// by each card's remaining count (so a card with 5 copies left is 5x more
+// likely to surface than one with 1 copy left). Returns null if the deck is empty.
+function drawRandomCard(){
+  const pool = [];
+  let total = 0;
+  allCards().forEach(c => {
+    const remaining = state.deckCounts[c.id] || 0;
+    if(remaining > 0){ pool.push({card:c, weight:remaining}); total += remaining; }
+  });
+  if(total <= 0) return null;
+  let r = Math.random() * total;
+  for(const entry of pool){
+    r -= entry.weight;
+    if(r < 0) return entry.card;
+  }
+  return pool[pool.length - 1].card;
+}
+
+function makePlayer(id){
+  return {
+    id,
+    name: 'Apostle ' + id,
+    vessel: MAX_VESSEL,
+    souls: STARTING_SOULS[state.playerCount],
+    corruption: 0,
+    cap: capForPhase(1),
+    hand: 0,
+    turnATK: 0,
+    turnDEF: 0,
+    tempBuffs: [],
+    corruptionReduceCount: 0,
+    skip: false,
+    desperate: false,
+  };
+}
+
+function newGame(count){
+  state = {
+    playerCount: count,
+    players: [],
+    phase: 1,
+    round: 1,
+    rotation: 'cw',
+    turnOrder: [],
+    activeIdx: 0,
+    winnerId: null,
+  };
+  customCards = [];
+  state.players = Array.from({length: count}, (_, i) => makePlayer(i+1));
+  state.turnOrder = state.players.map(p => p.id);
+  state.deckCounts = {};
+  allCards().forEach(c => state.deckCounts[c.id] = c.count);
+
+  const OPENING_HAND = 5;
+  const openingLines = [];
+  state.players.forEach(p => {
+    const drawn = [];
+    for(let i = 0; i < OPENING_HAND; i++){
+      const card = drawRandomCard();
+      if(!card) break;
+      state.deckCounts[card.id] = Math.max(0, (state.deckCounts[card.id]||0) - 1);
+      p.hand += 1;
+      drawn.push(card.name);
+    }
+    openingLines.push(p.name + ': ' + (drawn.length ? drawn.join(', ') : 'no cards left to draw'));
+  });
+
+  clearLog();
+  render();
+  log('A new arena opens. ' + count + ' Apostles enter, each bound with ' + STARTING_SOULS[count] + ' souls.', '');
+  log('Opening hands (' + OPENING_HAND + ' cards each):', 'log-card');
+  openingLines.forEach(line => log(line, 'log-card'));
+}
+
+function getPlayer(id){ return state.players.find(p => p.id === id); }
+function activePlayerId(){ return state.turnOrder[state.activeIdx]; }
+function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+
+function totalAtk(p){ return p.turnATK + p.tempBuffs.reduce((s,b) => s + (b.atk||0), 0); }
+function totalDef(p){ return p.turnDEF + p.tempBuffs.reduce((s,b) => s + (b.def||0), 0); }
+
+function checkWin(){
+  const winner = state.players.find(p => p.souls >= SOULS_TO_WIN);
+  if(winner && !state.winnerId){
+    state.winnerId = winner.id;
+    document.getElementById('winnerBanner').style.display = 'block';
+    document.getElementById('winnerName').textContent = winner.name + ' reaches ' + winner.souls + ' souls';
+    log(winner.name + ' has ascended.', 'log-win');
+  }
+}
+
+function applyDesperationCheck(p){
+  if(p.souls <= 0 && !p.desperate){
+    p.desperate = true;
+    p.corruption += 5;
+    log(p.name + ' falls to 0 souls — Desperation triggers. +5 Corruption, all corruption damage now ×2.', 'log-corrupt');
+  }
+}
+
+function suggestedDamageAgainst(attacker, target){
+  if(!attacker || !target) return 0;
+  return Math.max(0, totalAtk(attacker) - totalDef(target));
+}
+
+// Rebuilds the target checklist for the current attacker. Preserves any checked boxes / edited
+// damage values already on screen for Apostles still present, unless forceReset is true (used
+// when the attacker itself changes, since a new attacker means a fresh attack).
+function renderTargetList(forceReset){
+  const container = document.getElementById('targetList');
+  if(!container) return;
+  const attackerId = parseInt(document.getElementById('attackerSelect').value, 10);
+  const a = getPlayer(attackerId);
+
+  const prevChecked = new Set();
+  const prevDmg = {};
+  if(!forceReset){
+    container.querySelectorAll('.target-row').forEach(row => {
+      const cb = row.querySelector('input[type=checkbox]');
+      const dmgEl = row.querySelector('.target-dmg');
+      if(cb && cb.checked) prevChecked.add(cb.dataset.id);
+      if(dmgEl) prevDmg[dmgEl.dataset.id] = dmgEl.value;
+    });
+  }
+
+  const candidates = state.players.filter(p => p.id !== attackerId);
+  if(candidates.length === 0){ container.innerHTML = '<div class="target-row disabled">No other Apostles on the board.</div>'; return; }
+
+  container.innerHTML = candidates.map(t => {
+    const def = totalDef(t);
+    const suggested = suggestedDamageAgainst(a, t);
+    const dmgVal = (!forceReset && prevDmg[t.id] !== undefined) ? prevDmg[t.id] : suggested;
+    const checked = !forceReset && prevChecked.has(String(t.id));
+    return `
+      <div class="target-row">
+        <label class="target-check"><input type="checkbox" data-id="${t.id}" ${checked ? 'checked' : ''}> ${t.name}</label>
+        <span class="target-def">DEF ${def}</span>
+        <input type="number" class="target-dmg" data-id="${t.id}" value="${dmgVal}" min="0">
+      </div>`;
+  }).join('');
+}
+
+function resolveAttack(){
+  const attackerId = parseInt(document.getElementById('attackerSelect').value, 10);
+  const a = getPlayer(attackerId);
+  if(!a) return;
+
+  const rows = Array.from(document.querySelectorAll('#targetList .target-row'));
+  const hits = rows
+    .map(row => {
+      const cb = row.querySelector('input[type=checkbox]');
+      const dmgEl = row.querySelector('.target-dmg');
+      if(!cb || !cb.checked) return null;
+      const t = getPlayer(parseInt(cb.dataset.id, 10));
+      if(!t) return null;
+      return { t, dmg: clamp(parseInt(dmgEl.value, 10) || 0, 0, 999) };
+    })
+    .filter(Boolean);
+
+  if(hits.length === 0){ log('Select at least one adjacent target to resolve an attack.', 'log-corrupt'); return; }
+
+  let totalStolen = 0;
+  const parts = [];
+  hits.forEach(({t, dmg}) => {
+    const prevVessel = t.vessel;
+    t.vessel = clamp(t.vessel - dmg, 0, MAX_VESSEL);
+    const vesselReduced = t.vessel < prevVessel;
+    const soulsStolen = (vesselReduced && t.souls > 0) ? 1 : 0;
+    t.souls = clamp(t.souls - soulsStolen, 0, 999);
+    totalStolen += soulsStolen;
+    parts.push(`${t.name} (DEF ${totalDef(t)}) takes ${dmg} — vessel down, ${soulsStolen} soul(s) stolen`);
+    applyDesperationCheck(t);
+  });
+
+  const attackerLocked = a.corruption >= 5;
+  if(!attackerLocked) a.souls += totalStolen;
+  a.corruption += 1;
+  a.turnATK = 0;
+
+  const who = hits.length > 1 ? `${hits.length} adjacent Apostles` : hits[0].t.name;
+  let msg = `${a.name} strikes ${who}: ` + parts.join('; ') + '.';
+  if(attackerLocked) msg += ' (' + a.name + ' is corrupted — soul gain locked.)';
+  log(msg, '');
+
+  checkWin();
+  render();
+}
+
+function resolveEndOfRound(){
+  state.players.forEach(p => {
+    if(p.hand >= 8){
+      p.corruption += 1;
+      log(p.name + "'s hand (" + p.hand + ') has 8 or more cards — +1 Corruption.', 'log-corrupt');
+    }
+    if(p.corruption >= 5){
+      const mult = p.desperate ? 2 : 1;
+      p.vessel = clamp(p.vessel - 2 * mult, 0, MAX_VESSEL);
+      log(p.name + ' suffers Corruption DoT: -' + (2*mult) + ' vessel.', 'log-corrupt');
+      applyDesperationCheck(p);
+    }
+    p.tempBuffs = p.tempBuffs.filter(b => {
+      if(b.kind === 'rounds'){ b.remaining -= 1; return b.remaining > 0; }
+      return true;
+    });
+  });
+  checkWin();
+}
+
+function endTurn(){
+  const p = getPlayer(activePlayerId());
+  if(!p) return;
+  log(p.name + ' ends their turn.', '');
+  p.turnATK = 0;
+  p.tempBuffs = p.tempBuffs.filter(b => {
+    if(b.kind === 'ownTurns'){ b.remaining -= 1; return b.remaining > 0; }
+    return true;
+  });
+
+  const isLastInRound = state.activeIdx === state.turnOrder.length - 1;
+  state.activeIdx = (state.activeIdx + 1) % state.turnOrder.length;
+
+  if(isLastInRound){
+    resolveEndOfRound();
+    if(state.round < 3){ state.round += 1; }
+    else { advancePhase(); }
+  }
+
+  advanceToUnfrozen();
+}
+
+// Draws one random card for player p, decrementing the deck and growing their hand.
+// Returns the card drawn (or null if the deck is empty). Pass silent=true to suppress
+// this function's own log line when the caller wants to log a combined message instead.
+function performDraw(p, silent){
+  const card = drawRandomCard();
+  if(!card){
+    if(!silent) log(p.name + ' tries to draw, but the deck is empty.', 'log-corrupt');
+    return null;
+  }
+  state.deckCounts[card.id] = Math.max(0, (state.deckCounts[card.id]||0) - 1);
+  p.hand += 1;
+  if(!silent) log(p.name + ' draws: ' + card.name + ' (' + card.element + ') — "' + card.effect + '"', 'log-card');
+  return card;
+}
+
+function advanceToUnfrozen(){
+  let guard = 0;
+  while(guard++ < state.turnOrder.length + 2){
+    const next = getPlayer(activePlayerId());
+    if(!next) break;
+    if(next.skip){
+      next.skip = false;
+      // Drawing a card is mandatory every round no matter what effects are in
+      // play, so a frozen player still draws before their turn is skipped.
+      const drawn = performDraw(next, true);
+      const drawMsg = drawn ? `still draws: ${drawn.name} (${drawn.element})` : 'tries to draw, but the deck is empty';
+      log(`${next.name}'s turn is frozen — skipped, but ${drawMsg}.`, 'log-corrupt');
+      const wasLast = state.activeIdx === state.turnOrder.length - 1;
+      state.activeIdx = (state.activeIdx + 1) % state.turnOrder.length;
+      if(wasLast){
+        resolveEndOfRound();
+        if(state.round < 3){ state.round += 1; } else { advancePhase(); }
+      }
+      continue;
+    }
+    next.turnDEF = 0;
+    next.turnATK = 0;
+    next.corruptionReduceCount = 0;
+    next.cap = maxCapForPlayer(next);
+    break;
+  }
+  render();
+}
+
+function advancePhase(){
+  state.phase += 1;
+  state.round = 1;
+  let lowest = state.players[0];
+  state.players.forEach(p => { if(p.vessel < lowest.vessel) lowest = p; });
+  reorderTurnFrom(lowest.id);
+  log('Phase ' + state.phase + ' begins. ' + lowest.name + ' (lowest vessel) leads, rotation ' + state.rotation.toUpperCase() + '.', '');
+}
+
+function reorderTurnFrom(startId){
+  const ids = state.players.map(p => p.id).sort((a,b) => a-b);
+  const startIdx = ids.indexOf(startId);
+  let ordered = ids.slice(startIdx).concat(ids.slice(0, startIdx));
+  if(state.rotation === 'ccw') ordered = [ordered[0]].concat(ordered.slice(1).reverse());
+  state.turnOrder = ordered;
+  state.activeIdx = 0;
+}
+
+function setRotation(dir){
+  state.rotation = dir;
+  reorderTurnFrom(activePlayerId());
+  render();
+}
+
+function openPlayConsole(cardId){
+  const card = getCard(cardId);
+  if(!card) return;
+  const remaining = state.deckCounts[cardId] || 0;
+  if(remaining <= 0){ log('No copies of "' + card.name + '" remain in the deck.', 'log-corrupt'); return; }
+  pendingCard = card;
+  document.getElementById('playConsole').style.display = 'block';
+  document.getElementById('pcTitle').textContent = card.name + '  ·  ATK ' + card.atk + '  DEF ' + card.def + '  CAP ' + card.cap;
+  document.getElementById('pcEffect').textContent = card.effect;
+
+  const actorSel = document.getElementById('pcActor');
+  actorSel.innerHTML = state.players.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  actorSel.value = activePlayerId();
+
+  const targetField = document.getElementById('pcTargetField');
+  const targetSel = document.getElementById('pcTarget');
+  if(NEEDS_TARGET.has(card.effectType)){
+    targetField.style.display = 'flex';
+    targetSel.innerHTML = state.players.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    const other = state.players.find(p => p.id !== parseInt(actorSel.value,10)) || state.players[0];
+    targetSel.value = other.id;
+  } else {
+    targetField.style.display = 'none';
+  }
+
+  const extra = document.getElementById('pcExtra');
+  extra.innerHTML = '';
+  if(card.effectType === 'pairBonus'){
+    extra.innerHTML = `
+      <label><input type="radio" name="pairKind" value="none" checked> No pairing</label>
+      <label><input type="radio" name="pairKind" value="radiance"> Paired with a Radiance card (+${card.params.radiance} ATK)</label>
+      <label><input type="radio" name="pairKind" value="lovers"> Paired with another Lovers card (+${card.params.lovers} ATK)</label>
+    `;
+  } else if(card.effectType === 'conditionalDefBreakCorrupt'){
+    extra.innerHTML = `<label><input type="checkbox" id="defBrokeFailed" checked> The target failed to break the actor's DEF</label>`;
+  }
+
+  document.getElementById('playConsole').scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function closePlayConsole(){
+  pendingCard = null;
+  document.getElementById('playConsole').style.display = 'none';
+}
+
+function applyCardCost(actor, card){
+  if(actor.cap < card.cap){
+    log(actor.name + ' does not have enough Capacity for ' + card.name + ' — playing anyway (GM override).', 'log-corrupt');
+  }
+  actor.cap = clamp(actor.cap - card.cap, 0, 20);
+  state.deckCounts[card.id] = Math.max(0, (state.deckCounts[card.id]||0) - 1);
+  actor.turnATK += card.atk;
+  actor.turnDEF += card.def;
+}
+
+// extra = {pairKind, defBrokeFailed} — optional choices only relevant to a couple of card types.
+function resolveCardEffect(actor, target, card, extra){
+  extra = extra || {};
+  let extraMsg = '';
+  const p = card.params || {};
+
+  switch(card.effectType){
+    case 'reveal':
+      extraMsg = target ? `Reveal ${target.name}'s hand.` : '';
+      break;
+    case 'selfBuff':
+      actor.turnATK += p.atk; actor.turnDEF += p.def;
+      extraMsg = `+${p.atk} ATK / +${p.def} DEF this turn.`;
+      break;
+    case 'swap':
+      extraMsg = target ? `Swap a random card with ${target.name} (adjust hands manually).` : '';
+      break;
+    case 'corruptAllOpponents':
+      state.players.forEach(o => { if(o.id !== actor.id) o.corruption = clamp(o.corruption + p.amount, 0, 20); });
+      extraMsg = `All opponents' corruption +${p.amount}.`;
+      break;
+    case 'skipAndBuffNext':
+      actor.cap = 0;
+      actor.tempBuffs.push({label:'Temperance', atk:p.atk, def:p.def, remaining:1, kind:'ownTurns'});
+      extraMsg = `${actor.name} is locked out of further actions for the rest of this round (may still draw); +${p.atk} ATK / +${p.def} DEF queued for next round.`;
+      break;
+    case 'freezeOpponents':
+      state.players.forEach(o => { if(o.id !== actor.id) o.skip = true; });
+      extraMsg = `All opponents' next turns are frozen.`;
+      break;
+    case 'heal':
+      actor.vessel = clamp(actor.vessel + p.heal, 0, MAX_VESSEL);
+      extraMsg = `Vessel +${p.heal}.`;
+      break;
+    case 'phaseATK': {
+      const bonus = state.phase === 1 ? p.p1 : (state.phase <= 3 ? p.p23 : p.p4);
+      actor.turnATK += bonus;
+      extraMsg = `Phase ${state.phase} bonus: +${bonus} ATK.`;
+      break;
+    }
+    case 'corruptionReduceCombo': {
+      const doubled = actor.corruptionReduceCount >= 1;
+      const amount = p.amount * (doubled ? 2 : 1);
+      actor.corruption = clamp(actor.corruption - amount, 0, 20);
+      actor.corruptionReduceCount += 1;
+      extraMsg = `Corruption -${amount}${doubled ? ' (combo doubled)' : ''}.`;
+      break;
+    }
+    case 'capDebuffOpponents':
+      state.players.forEach(o => { if(o.id !== actor.id) o.cap = clamp(o.cap - p.amount, 0, 20); });
+      extraMsg = `All opponents' Capacity -${p.amount} for 1 turn.`;
+      break;
+    case 'healAndTempDef':
+      actor.vessel = clamp(actor.vessel + p.heal, 0, MAX_VESSEL);
+      actor.tempBuffs.push({label:'Star', def:p.def, remaining:p.turns, kind:'ownTurns'});
+      extraMsg = `Vessel +${p.heal}; +${p.def} DEF for ${p.turns} turns.`;
+      break;
+    case 'drawExtra': {
+      const drawnNames = [];
+      for(let i = 0; i < p.amount; i++){
+        const drawn = drawRandomCard();
+        if(!drawn) break;
+        state.deckCounts[drawn.id] = Math.max(0, (state.deckCounts[drawn.id]||0) - 1);
+        actor.hand += 1;
+        drawnNames.push(drawn.name);
+      }
+      extraMsg = drawnNames.length
+        ? `Draws ${drawnNames.length} extra card(s): ${drawnNames.join(', ')}.`
+        : `Tries to draw ${p.amount} extra card(s), but the deck is empty.`;
+      break;
+    }
+    case 'capBuffRounds':
+      actor.cap = clamp(actor.cap + p.amount, 0, 20);
+      actor.tempBuffs.push({label:'Hermit', cap:p.amount, remaining:p.rounds, kind:'rounds'});
+      extraMsg = `Capacity +${p.amount} now, and for ${p.rounds} rounds.`;
+      break;
+    case 'conditionalLowestVesselATK': {
+      const lowestVessel = Math.min(...state.players.map(pl => pl.vessel));
+      if(actor.vessel === lowestVessel){
+        actor.turnATK += p.amount;
+        actor.tempBuffs.push({label:'Hanged Man', atk:p.amount, remaining:Math.max(0,p.turns-1), kind:'ownTurns'});
+        extraMsg = `Lowest Vessel confirmed — +${p.amount} ATK for ${p.turns} turns.`;
+      } else {
+        extraMsg = `${actor.name} does not have the lowest Vessel — no bonus applied.`;
+      }
+      break;
+    }
+    case 'executeIfLowVessel':
+      if(target){
+        if(target.vessel < p.threshold){
+          const stolen = target.souls;
+          target.vessel = 0; target.souls = 0;
+          if(!(actor.corruption >= 5)) actor.souls += stolen;
+          extraMsg = `${target.name}'s Vessel was below ${p.threshold} — executed! ${stolen} soul(s) stolen.`;
+          applyDesperationCheck(target);
+          checkWin();
+        } else {
+          extraMsg = `${target.name}'s Vessel (${target.vessel}) is not below ${p.threshold} — Death fizzles.`;
+        }
+      }
+      break;
+    case 'corruptOpponentAndSelf':
+      if(target) target.corruption = clamp(target.corruption + p.opp, 0, 20);
+      actor.corruption = clamp(actor.corruption + p.self, 0, 20);
+      extraMsg = target ? `${target.name}'s corruption +${p.opp}; ${actor.name}'s corruption +${p.self}.` : '';
+      break;
+    case 'conditionalDefBreakCorrupt': {
+      const failed = extra.defBrokeFailed !== undefined ? extra.defBrokeFailed : true;
+      if(failed && target){
+        target.corruption = clamp(target.corruption + p.amount, 0, 20);
+        extraMsg = `${target.name} failed to break DEF — corruption +${p.amount}.`;
+      } else {
+        extraMsg = `Condition not met — no corruption applied.`;
+      }
+      break;
+    }
+    case 'flatATKBonus':
+      actor.turnATK += p.amount;
+      extraMsg = `Current attack +${p.amount} ATK.`;
+      break;
+    case 'healAndReduceCorruption':
+      actor.vessel = clamp(actor.vessel + p.heal, 0, MAX_VESSEL);
+      actor.corruption = clamp(actor.corruption - p.corr, 0, 20);
+      extraMsg = `Vessel +${p.heal}; corruption -${p.corr}.`;
+      break;
+    case 'pairBonus': {
+      const kind = extra.pairKind || 'none';
+      if(kind === 'radiance'){ actor.turnATK += p.radiance; extraMsg = `Paired with Radiance — +${p.radiance} ATK.`; }
+      else if(kind === 'lovers'){ actor.turnATK += p.lovers; extraMsg = `Paired with Lovers — +${p.lovers} ATK.`; }
+      else { extraMsg = `No pairing bonus applied.`; }
+      break;
+    }
+    case 'conditionalCorruptionCompareATK':
+      if(target && target.corruption > actor.corruption){
+        actor.turnATK += p.amount;
+        extraMsg = `${target.name}'s corruption is higher — +${p.amount} ATK.`;
+      } else {
+        extraMsg = `Condition not met — no bonus applied.`;
+      }
+      break;
+  }
+
+  return extraMsg;
+}
+
+// After any card is played, point the Attack Resolver at the actor (and check the target, if any)
+// so the suggested damage immediately reflects the ATK/DEF just applied.
+function syncResolverToPlay(actor, target){
+  const attackerSelect = document.getElementById('attackerSelect');
+  if(state.players.some(p => p.id === actor.id)) attackerSelect.value = actor.id;
+  renderTargetList(true);
+  if(target){
+    const row = Array.from(document.querySelectorAll('#targetList .target-row'))
+      .find(r => { const cb = r.querySelector('input[type=checkbox]'); return cb && cb.dataset.id === String(target.id); });
+    if(row) row.querySelector('input[type=checkbox]').checked = true;
+  }
+}
+
+function finishPlayingCard(actor, target, card, extraMsg){
+  log(`${actor.name} plays ${card.name} (${card.element}) — CAP -${card.cap}, ATK +${card.atk}/DEF +${card.def}. ${extraMsg}`, 'log-card');
+  checkWin();
+  render();
+  syncResolverToPlay(actor, target);
+}
+
+// One click: card needs no target and no extra choice, so it's played by the active Apostle immediately.
+function quickPlayCard(cardId){
+  const card = getCard(cardId);
+  if(!card) return;
+  const remaining = state.deckCounts[cardId] || 0;
+  if(remaining <= 0){ log('No copies of "' + card.name + '" remain in the deck.', 'log-corrupt'); return; }
+  if(!isQuickEligible(card)){ openPlayConsole(cardId); return; }
+
+  const actor = getPlayer(activePlayerId());
+  if(!actor) return;
+  applyCardCost(actor, card);
+  const extraMsg = resolveCardEffect(actor, null, card, {});
+  finishPlayingCard(actor, null, card, extraMsg);
+}
+
+function confirmPlayCard(){
+  if(!pendingCard) return;
+  const card = pendingCard;
+  const actor = getPlayer(parseInt(document.getElementById('pcActor').value, 10));
+  let target = null;
+  if(NEEDS_TARGET.has(card.effectType)){
+    target = getPlayer(parseInt(document.getElementById('pcTarget').value, 10));
+  }
+  if(!actor){ return; }
+
+  const extra = {};
+  if(card.effectType === 'pairBonus'){
+    extra.pairKind = (document.querySelector('input[name="pairKind"]:checked') || {value:'none'}).value;
+  } else if(card.effectType === 'conditionalDefBreakCorrupt'){
+    const cb = document.getElementById('defBrokeFailed');
+    extra.defBrokeFailed = cb ? cb.checked : true;
+  }
+
+  applyCardCost(actor, card);
+  const extraMsg = resolveCardEffect(actor, target, card, extra);
+  closePlayConsole();
+  finishPlayingCard(actor, target, card, extraMsg);
+}
+
+function log(msg, cls){
+  const el = document.getElementById('resolveLog');
+  const div = document.createElement('div');
+  if(cls) div.className = cls;
+  div.textContent = msg;
+  el.prepend(div);
+}
+function clearLog(){ document.getElementById('resolveLog').innerHTML = ''; }
+
+function elClass(el){
+  return {Celeste:'el-celeste', Crimson:'el-crimson', Nocturne:'el-nocturne', Radiance:'el-radiance'}[el] || '';
+}
+
+function render(){
+  document.getElementById('phaseNum').textContent = state.phase;
+  document.getElementById('roundNum').textContent = state.round;
+  document.getElementById('capChip').textContent = capForPhase(state.phase) + ' CAP / turn';
+  document.getElementById('rotCW').classList.toggle('primary', state.rotation === 'cw');
+  document.getElementById('rotCCW').classList.toggle('primary', state.rotation === 'ccw');
+
+  const totalRemaining = Object.values(state.deckCounts).reduce((s,v)=>s+v,0);
+  const totalDeck = allCards().reduce((s,c)=>s+c.count,0);
+  document.getElementById('deckChip').textContent = 'Deck: ' + totalRemaining + ' / ' + totalDeck + ' remaining';
+
+  const grid = document.getElementById('playerGrid');
+  grid.innerHTML = '';
+  const activeId = activePlayerId();
+
+  state.players.forEach(p => {
+    const isActive = p.id === activeId && !state.winnerId;
+    const card = document.createElement('div');
+    card.className = 'player-card' + (isActive ? ' active' : '') + (p.corruption >= 5 ? ' corrupted' : '') + (p.desperate ? ' desperate' : '');
+
+    const vesselPct = clamp((p.vessel / MAX_VESSEL) * 100, 0, 100);
+    const soulsPct = clamp((p.souls / SOULS_TO_WIN) * 100, 0, 100);
+
+    let pips = '';
+    for(let i = 1; i <= 5; i++){
+      pips += '<div class="pip ' + (p.corruption >= i ? 'lit ' : '') + (i === 5 ? 'threshold' : '') + '"></div>';
+    }
+
+    let tags = '';
+    if(p.corruption >= 5) tags += '<span class="tag">Corrupted — soul lock</span>';
+    if(p.hand >= 8) tags += '<span class="tag warn">Hand overflow — +1 Corruption at round end</span>';
+    if(p.desperate) tags += '<span class="tag">Desperate ×2</span>';
+    if(p.skip) tags += '<span class="tag freeze">Frozen — skips next</span>';
+    p.tempBuffs.forEach(b => {
+      const parts = [];
+      if(b.atk) parts.push('+'+b.atk+' ATK');
+      if(b.def) parts.push('+'+b.def+' DEF');
+      if(b.cap) parts.push('+'+b.cap+' CAP');
+      tags += `<span class="tag buff">${b.label} ${parts.join(' ')} (${b.remaining} ${b.kind==='rounds'?'rd':'trn'})</span>`;
+    });
+
+    card.innerHTML = `
+      <div class="name-row">
+        <input class="name" value="${p.name}" data-id="${p.id}" data-field="name">
+        <span class="badge-active">Active</span>
+      </div>
+
+      <div class="stat-block">
+        <div class="stat-label"><span>Vessel</span><span class="val">${p.vessel} / ${MAX_VESSEL}</span></div>
+        <div class="bar-track"><div class="bar-fill vessel" style="width:${vesselPct}%"></div></div>
+        <div class="stepper" style="margin-top:6px;">
+          <button data-action="vessel" data-delta="-5" data-id="${p.id}">−5</button>
+          <button data-action="vessel" data-delta="-1" data-id="${p.id}">−1</button>
+          <input class="amt" type="number" value="${p.vessel}" data-field="vessel" data-id="${p.id}">
+          <button data-action="vessel" data-delta="1" data-id="${p.id}">+1</button>
+          <button data-action="vessel" data-delta="5" data-id="${p.id}">+5</button>
+        </div>
+      </div>
+
+      <div class="stat-block">
+        <div class="stat-label"><span>Souls</span><span class="val">${p.souls}</span></div>
+        <div class="bar-track"><div class="bar-fill souls" style="width:${soulsPct}%"></div></div>
+        <div class="stepper" style="margin-top:6px;">
+          <button data-action="souls" data-delta="-1" data-id="${p.id}">−1</button>
+          <input class="amt" type="number" value="${p.souls}" data-field="souls" data-id="${p.id}">
+          <button data-action="souls" data-delta="1" data-id="${p.id}">+1</button>
+        </div>
+      </div>
+
+      <div class="stat-block">
+        <div class="stat-label"><span>Corruption</span><span class="val">${p.corruption} / 5</span></div>
+        <div class="corruption-pips">${pips}</div>
+        <div class="stepper" style="margin-top:6px;">
+          <button data-action="corruption" data-delta="-1" data-id="${p.id}">−1</button>
+          <button data-action="corruption" data-delta="1" data-id="${p.id}">+1</button>
+        </div>
+      </div>
+
+      <div class="combat-mini">
+        <div><b>${totalAtk(p)}</b><span>ATK bonus</span></div>
+        <div><b>${totalDef(p)}</b><span>DEF / shield</span></div>
+      </div>
+
+      <div class="stat-block">
+        <div class="stat-label"><span>Capacity remaining</span><span class="val">${p.cap} / ${maxCapForPlayer(p)}</span></div>
+        <div class="stepper">
+          <button data-action="cap" data-delta="-2" data-id="${p.id}">Move −2</button>
+          <input class="amt" type="number" value="${p.cap}" data-field="cap" data-id="${p.id}">
+          <button data-action="capReset" data-id="${p.id}">Reset</button>
+        </div>
+      </div>
+
+      <div class="hand-row">
+        <div class="stat-label" style="margin:0; flex:1;"><span>Hand size</span><span class="val">${p.hand} <span style="opacity:.6; font-family:'Inter',sans-serif; font-size:10px;">(8+ = +1 Corruption)</span></span></div>
+        <div class="stepper">
+          <button data-action="hand" data-delta="-1" data-id="${p.id}">−</button>
+          <input class="amt" type="number" value="${p.hand}" data-field="hand" data-id="${p.id}">
+          <button data-action="hand" data-delta="1" data-id="${p.id}">+</button>
+        </div>
+      </div>
+
+      <div class="status-tags">${tags}</div>
+
+      <div class="mini-actions">
+        <button data-action="toggleShield" data-id="${p.id}">${p.skip ? 'Clear freeze' : 'Force freeze'}</button>
+        <button data-action="toggleDesperate" data-id="${p.id}">${p.desperate ? 'Clear desperation' : 'Force desperation'}</button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  const attackerSelect = document.getElementById('attackerSelect');
+  const prevAttacker = attackerSelect.value;
+  attackerSelect.innerHTML = state.players.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  attackerSelect.value = state.players.some(p => p.id == prevAttacker) ? prevAttacker : activeId;
+  renderTargetList(false);
+
+  document.getElementById('endTurnBtn').disabled = !!state.winnerId;
+
+  renderDeck();
+}
+
+function renderDeck(){
+  const groups = document.getElementById('deckGroups');
+  groups.innerHTML = '';
+  const elements = ['Celeste','Crimson','Nocturne','Radiance'];
+  elements.forEach(elName => {
+    const cards = allCards().filter(c => c.element === elName);
+    if(cards.length === 0) return;
+    const remainingSum = cards.reduce((s,c)=>s+(state.deckCounts[c.id]||0),0);
+    const totalSum = cards.reduce((s,c)=>s+c.count,0);
+
+    const details = document.createElement('details');
+    details.className = 'deck-group';
+    const rowsHtml = cards.map(c => {
+      const remaining = state.deckCounts[c.id] || 0;
+      return `
+        <tr>
+          <td class="cardname ${elClass(c.element)}">${c.name}</td>
+          <td>${c.effect}</td>
+          <td class="stats">ATK ${c.atk} · DEF ${c.def} · CAP ${c.cap}</td>
+          <td class="remain">
+            <input type="number" value="${remaining}" data-deckcount="${c.id}" min="0">
+            <div style="font-size:10px; color:var(--parchment-dim); margin-top:2px;">of ${c.count}</div>
+          </td>
+          <td class="playcell">
+            ${isQuickEligible(c)
+              ? `<button class="tiny primary" data-quickplay="${c.id}" ${remaining<=0?'disabled':''} title="Applies instantly to the active Apostle">⚡ Quick Play</button>`
+              : `<button class="tiny" data-play="${c.id}" ${remaining<=0?'disabled':''}>Play…</button>`}
+          </td>
+        </tr>`;
+    }).join('');
+
+    details.innerHTML = `
+      <summary>${elName} <span class="count-tag">${remainingSum} / ${totalSum} remaining</span></summary>
+      <table class="cardtable">
+        <thead><tr><th>Card</th><th>Effect</th><th>Stats</th><th>Remaining</th><th></th></tr></thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+    `;
+    groups.appendChild(details);
+  });
+}
+
+document.getElementById('playerGrid').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-action]');
+  if(!btn) return;
+  const id = parseInt(btn.dataset.id, 10);
+  const p = getPlayer(id);
+  if(!p) return;
+  const action = btn.dataset.action;
+
+  if(action === 'vessel'){ p.vessel = clamp(p.vessel + parseInt(btn.dataset.delta,10), 0, MAX_VESSEL); applyDesperationCheck(p); }
+  if(action === 'souls'){ p.souls = clamp(p.souls + parseInt(btn.dataset.delta,10), 0, 999); applyDesperationCheck(p); checkWin(); }
+  if(action === 'corruption'){ p.corruption = clamp(p.corruption + parseInt(btn.dataset.delta,10), 0, 20); }
+  if(action === 'cap'){ p.cap = clamp(p.cap + parseInt(btn.dataset.delta,10), 0, 20); }
+  if(action === 'capReset'){ p.cap = maxCapForPlayer(p); }
+  if(action === 'hand'){ p.hand = clamp(p.hand + parseInt(btn.dataset.delta,10), 0, 20); }
+  if(action === 'toggleShield'){ p.skip = !p.skip; }
+  if(action === 'toggleDesperate'){ p.desperate = !p.desperate; }
+  render();
+});
+
+document.getElementById('playerGrid').addEventListener('change', (e) => {
+  const field = e.target.dataset.field;
+  if(!field) return;
+  const id = parseInt(e.target.dataset.id, 10);
+  const p = getPlayer(id);
+  if(!p) return;
+  if(field === 'name'){ p.name = e.target.value || p.name; }
+  else {
+    let v = parseInt(e.target.value, 10);
+    if(isNaN(v)) v = 0;
+    if(field === 'vessel') v = clamp(v, 0, MAX_VESSEL);
+    if(field === 'souls') v = clamp(v, 0, 999);
+    if(field === 'cap') v = clamp(v, 0, 20);
+    if(field === 'hand') v = clamp(v, 0, 20);
+    p[field] = v;
+    if(field === 'souls' || field === 'vessel') { applyDesperationCheck(p); checkWin(); }
+  }
+  render();
+});
+
+document.getElementById('playerCountSelect').addEventListener('change', (e) => newGame(parseInt(e.target.value, 10)));
+document.getElementById('newGameBtn').addEventListener('click', () => newGame(parseInt(document.getElementById('playerCountSelect').value, 10)));
+document.getElementById('rotCW').addEventListener('click', () => setRotation('cw'));
+document.getElementById('rotCCW').addEventListener('click', () => setRotation('ccw'));
+document.getElementById('drawBtn').addEventListener('click', () => {
+  const p = getPlayer(activePlayerId());
+  if(!p) return;
+  performDraw(p);
+  render();
+});
+document.getElementById('endTurnBtn').addEventListener('click', endTurn);
+document.getElementById('resolveBtn').addEventListener('click', resolveAttack);
+document.getElementById('attackerSelect').addEventListener('change', () => renderTargetList(true));
+
+document.getElementById('deckGroups').addEventListener('click', (e) => {
+  const quickBtn = e.target.closest('button[data-quickplay]');
+  if(quickBtn){ quickPlayCard(quickBtn.dataset.quickplay); return; }
+  const playBtn = e.target.closest('button[data-play]');
+  if(playBtn){ openPlayConsole(playBtn.dataset.play); }
+});
+document.getElementById('deckGroups').addEventListener('change', (e) => {
+  const id = e.target.dataset.deckcount;
+  if(id){
+    let v = parseInt(e.target.value, 10);
+    if(isNaN(v) || v < 0) v = 0;
+    state.deckCounts[id] = v;
+    render();
+  }
+});
+
+document.getElementById('pcConfirm').addEventListener('click', confirmPlayCard);
+document.getElementById('pcCancel').addEventListener('click', closePlayConsole);
+
+document.getElementById('cycleDeckBtn').addEventListener('click', () => {
+  allCards().forEach(c => state.deckCounts[c.id] = c.count);
+  log('The deck cycles — all card counts reset.', 'log-card');
+  render();
+});
+
+document.getElementById('addCardBtn').addEventListener('click', () => {
+  const name = document.getElementById('newCardName').value.trim();
+  if(!name) return;
+  const element = document.getElementById('newCardElement').value;
+  const effect = document.getElementById('newCardEffect').value.trim() || 'Custom effect — resolve manually.';
+  const atk = parseInt(document.getElementById('newCardAtk').value, 10) || 0;
+  const def = parseInt(document.getElementById('newCardDef').value, 10) || 0;
+  const cap = parseInt(document.getElementById('newCardCap').value, 10) || 1;
+  const count = parseInt(document.getElementById('newCardCount').value, 10) || 1;
+  const id = 'custom_' + element.toLowerCase() + '_' + name.toLowerCase().replace(/[^a-z0-9]+/g,'_') + '_' + Date.now();
+  const newCard = {id, element, name, effect, atk, def, cap, count, effectType:'selfBuff', params:{atk:0, def:0}};
+  customCards.push(newCard);
+  state.deckCounts[id] = count;
+  document.getElementById('newCardName').value = '';
+  document.getElementById('newCardEffect').value = '';
+  log(`Added custom card "${name}" (${element}) to the deck.`, 'log-card');
+  render();
+});
+
+newGame(4);
+</script>
+</body>
+</html>
