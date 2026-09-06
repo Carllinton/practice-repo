@@ -385,7 +385,7 @@ const CARD_CATALOG = [
   {id:'hierophant', element:'Celeste', name:'The Hierophant', effect:'Increases ATK and DEF by 2', atk:0, def:0, cap:2, count:2, effectType:'selfBuff', params:{atk:2, def:2}},
   {id:'wheel', element:'Celeste', name:'Wheel of Fortune', effect:'Swap a random card from an opponent', atk:3, def:2, cap:3, count:2, effectType:'swap'},
   {id:'justice', element:'Celeste', name:'Justice', effect:"Increases all opponents' corruption by 2", atk:0, def:2, cap:4, count:2, effectType:'corruptAllOpponents', params:{amount:2}},
-  {id:'temperance', element:'Celeste', name:'Temperance', effect:'Locks you out of further actions this round (may still draw); ATK/DEF +5 next round', atk:0, def:5, cap:5, count:2, effectType:'skipAndBuffNext', params:{atk:5, def:5}},
+  {id:'temperance', element:'Celeste', name:'Temperance', effect:'Skip your current round; ATK/DEF +5 next round', atk:0, def:5, cap:5, count:2, effectType:'skipAndBuffNext', params:{atk:5, def:5}},
   {id:'world', element:'Celeste', name:'The World', effect:"Stop all turns of all opponents besides you", atk:6, def:7, cap:8, count:1, effectType:'freezeOpponents'},
 
   {id:'emperor', element:'Crimson', name:'The Emperor', effect:'DEF +2 and heals Vessel by 1', atk:2, def:4, cap:3, count:3, effectType:'heal', params:{heal:1}},
@@ -399,7 +399,7 @@ const CARD_CATALOG = [
   {id:'hangedman', element:'Nocturne', name:'The Hanged Man', effect:'If you have the lowest Vessel, ATK +5 for 2 turns', atk:3, def:5, cap:3, count:2, effectType:'conditionalLowestVesselATK', params:{amount:5, turns:2}},
   {id:'death', element:'Nocturne', name:'Death', effect:'Executes an opponent if their Vessel is below 10', atk:7, def:4, cap:5, count:1, effectType:'executeIfLowVessel', params:{threshold:10}},
   {id:'devil', element:'Nocturne', name:'The Devil', effect:"Increases opponent's corruption by 3, and your own by 1", atk:8, def:3, cap:6, count:1, effectType:'corruptOpponentAndSelf', params:{opp:3, self:1}},
-  {id:'moon', element:'Nocturne', name:'The Moon', effect:'If an opponent fails to break your DEF, increase their corruption by 2', atk:4, def:5, cap:5, count:2, effectType:'conditionalDefBreakCorrupt', params:{amount:2}},
+  {id:'moon', element:'Nocturne', name:'The Moon', effect:'If an opponent fails to break your DEF, increase their corruption by 2', atk:4, def:5, cap:2, count:2, effectType:'conditionalDefBreakCorrupt', params:{amount:2}},
   {id:'magician', element:'Radiance', name:'The Magician', effect:'Current attack gains +1 ATK', atk:3, def:1, cap:1, count:3, effectType:'flatATKBonus', params:{amount:1}},
   {id:'empress', element:'Radiance', name:'The Empress', effect:'Heals Vessel by 1 and reduces corruption by 2', atk:0, def:3, cap:3, count:5, effectType:'healAndReduceCorruption', params:{heal:1, corr:2}},
   {id:'lovers', element:'Radiance', name:'The Lovers', effect:'Paired with a Radiance card: +2 ATK. Paired with another Lovers: +3 ATK', atk:3, def:3, cap:3, count:3, effectType:'pairBonus', params:{radiance:2, lovers:3}},
@@ -650,33 +650,14 @@ function endTurn(){
   advanceToUnfrozen();
 }
 
-// Draws one random card for player p, decrementing the deck and growing their hand.
-// Returns the card drawn (or null if the deck is empty). Pass silent=true to suppress
-// this function's own log line when the caller wants to log a combined message instead.
-function performDraw(p, silent){
-  const card = drawRandomCard();
-  if(!card){
-    if(!silent) log(p.name + ' tries to draw, but the deck is empty.', 'log-corrupt');
-    return null;
-  }
-  state.deckCounts[card.id] = Math.max(0, (state.deckCounts[card.id]||0) - 1);
-  p.hand += 1;
-  if(!silent) log(p.name + ' draws: ' + card.name + ' (' + card.element + ') — "' + card.effect + '"', 'log-card');
-  return card;
-}
-
 function advanceToUnfrozen(){
   let guard = 0;
   while(guard++ < state.turnOrder.length + 2){
     const next = getPlayer(activePlayerId());
     if(!next) break;
     if(next.skip){
+      log(next.name + "'s turn is frozen — skipped.", 'log-corrupt');
       next.skip = false;
-      // Drawing a card is mandatory every round no matter what effects are in
-      // play, so a frozen player still draws before their turn is skipped.
-      const drawn = performDraw(next, true);
-      const drawMsg = drawn ? `still draws: ${drawn.name} (${drawn.element})` : 'tries to draw, but the deck is empty';
-      log(`${next.name}'s turn is frozen — skipped, but ${drawMsg}.`, 'log-corrupt');
       const wasLast = state.activeIdx === state.turnOrder.length - 1;
       state.activeIdx = (state.activeIdx + 1) % state.turnOrder.length;
       if(wasLast){
@@ -795,9 +776,9 @@ function resolveCardEffect(actor, target, card, extra){
       extraMsg = `All opponents' corruption +${p.amount}.`;
       break;
     case 'skipAndBuffNext':
-      actor.cap = 0;
+      actor.skip = true;
       actor.tempBuffs.push({label:'Temperance', atk:p.atk, def:p.def, remaining:1, kind:'ownTurns'});
-      extraMsg = `${actor.name} is locked out of further actions for the rest of this round (may still draw); +${p.atk} ATK / +${p.def} DEF queued for next round.`;
+      extraMsg = `${actor.name} skips the rest of this round; +${p.atk} ATK / +${p.def} DEF queued for next round.`;
       break;
     case 'freezeOpponents':
       state.players.forEach(o => { if(o.id !== actor.id) o.skip = true; });
@@ -1200,7 +1181,11 @@ document.getElementById('rotCCW').addEventListener('click', () => setRotation('c
 document.getElementById('drawBtn').addEventListener('click', () => {
   const p = getPlayer(activePlayerId());
   if(!p) return;
-  performDraw(p);
+  const card = drawRandomCard();
+  if(!card){ log('The deck is empty — no card drawn.', 'log-corrupt'); render(); return; }
+  state.deckCounts[card.id] = Math.max(0, (state.deckCounts[card.id]||0) - 1);
+  p.hand += 1;
+  log(p.name + ' draws: ' + card.name + ' (' + card.element + ') — "' + card.effect + '"', 'log-card');
   render();
 });
 document.getElementById('endTurnBtn').addEventListener('click', endTurn);
