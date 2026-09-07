@@ -192,7 +192,8 @@
   .deck-group summary::-webkit-details-marker{display:none;}
   .deck-group[open] summary{border-bottom:none;}
   .deck-group .count-tag{font-size:11px; color:var(--parchment-dim); font-family:'Inter',sans-serif;}
-  table.cardtable{width:100%; border-collapse:collapse; font-size:13px; border:1px solid var(--line); border-top:none;}
+  .table-scroll{width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;}
+  table.cardtable{width:100%; min-width:640px; border-collapse:collapse; font-size:13px; border:1px solid var(--line); border-top:none;}
   table.cardtable th{text-align:left; font-family:'Cinzel', serif; font-weight:500; font-size:10.5px; text-transform:uppercase; letter-spacing:0.05em; color:var(--parchment-dim); padding:9px 12px; border-bottom:1px solid var(--line);}
   table.cardtable td{padding:9px 12px; border-bottom:1px solid var(--line); vertical-align:middle;}
   table.cardtable tr:last-child td{border-bottom:none;}
@@ -219,10 +220,46 @@
 
   footer{text-align:center; color:var(--parchment-dim); font-family:'Cormorant Garamond', serif; font-style:italic; font-size:13px; margin-top:30px;}
 
+  @media (max-width: 900px){
+    .player-grid{grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));}
+  }
+
   @media (max-width: 640px){
-    header{flex-direction:column; align-items:flex-start;}
+    body{padding:16px 12px 40px;}
+    header{flex-direction:column; align-items:flex-start; gap:10px;}
+    header h1{font-size:22px;}
     .win-target{text-align:left;}
+    .win-target span{display:block; margin-top:2px;}
+
+    .control-strip{padding:12px; gap:10px;}
+    .cs-group{flex:1 1 auto;}
+    #turnActions{flex-basis:100%;}
+    #drawBtn, #endTurnBtn{flex:1;}
+    .spacer{flex-basis:100%; height:0;}
+
+    .player-grid{grid-template-columns:1fr; gap:12px;}
+    .player-card{padding:14px;}
+
+    .panel-block{padding:14px;}
+    .resolver-row{flex-direction:column; align-items:stretch; gap:10px;}
+    .field select, .field input{min-width:0; width:100%;}
+    .target-list{min-width:0; width:100%;}
+
     table.cardtable{font-size:12px;}
+
+    .add-card-form{flex-direction:column; align-items:stretch;}
+    .add-card-form .field input, .add-card-form .field select, .add-card-form .field.wide input{min-width:0; width:100%;}
+
+    .mini-actions{flex-direction:column;}
+    .mini-actions button{flex:none; width:100%;}
+
+    button{padding:9px 14px;}
+    .stepper button{padding:6px 12px;}
+  }
+
+  @media (max-width: 400px){
+    header h1{font-size:19px;}
+    .combat-mini{flex-direction:column;}
   }
 </style>
 </head>
@@ -235,7 +272,7 @@
       <h1>Apostle Arena</h1>
       <div class="sub">Game Master's Ledger — souls, vessels, corruption &amp; the arcana deck</div>
     </div>
-    <div class="win-target">Ascension at<b id="soulsTarget">25 Souls</b></div>
+    <div class="win-target">Awakens at<b id="soulsTarget">25 Souls</b><span style="font-size:11px; opacity:.75;">then reach the Ascension Hex to win</span></div>
   </header>
 
   <div id="winnerBanner">
@@ -271,7 +308,7 @@
 
     <div class="spacer"></div>
 
-    <div class="cs-group">
+    <div class="cs-group" id="turnActions">
       <button id="drawBtn">Draw 1 (active)</button>
       <button id="endTurnBtn" class="primary">End Turn →</button>
     </div>
@@ -357,7 +394,7 @@
     <button id="cycleDeckBtn">↺ Cycle Deck (reshuffle all counts)</button>
   </div>
 
-  <footer>Corruption threshold 5 · Hand size of 8+ at round end gives +1 Corruption · Movement costs 2 CAP · Deck totals 52 (Celeste 11 · Crimson 16 · Nocturne 11 · Radiance 14) · Celeste's individual counts were unspecified in the source sheet — 11 was split evenly as a placeholder, edit the Remaining fields freely to match your physical deck.</footer>
+  <footer>Corruption tiers: 5+ = -2 Vessel/round &amp; Soullocked, 10+ = -4 Vessel/round &amp; Soullocked · Hand size of 8+ at round end gives +1 Corruption · Movement costs 2 CAP · Deck totals shown live in the "Deck" chip above and the Arcana Deck panel below — edit the Remaining fields freely to match your physical deck.</footer>
 </div>
 
 <script>
@@ -366,9 +403,9 @@ const SOULS_TO_WIN = 25;
 const MAX_VESSEL = 50;
 
 function capForPhase(phase){
-  if(phase === 1) return 5;
-  if(phase === 2 || phase === 3) return 8;
-  return 10;
+  if(phase === 1) return 8;
+  if(phase === 2 || phase === 3) return 12;
+  return 15;
 }
 
 // The Capacity a player resets to at the start of their turn: base phase capacity plus
@@ -377,37 +414,36 @@ function maxCapForPlayer(p){
   return capForPhase(state.phase) + p.tempBuffs.reduce((s,b) => s + (b.cap||0), 0);
 }
 
-/* counts for Celeste were not given in the source material — reasonable defaults
-   assumed below (sum 11) so the deck totals stay close to 52; edit the count
-   fields in the Deck panel to match your physical deck exactly. */
+// Card data below matches the current physical card sheet (Sept 2026 patch).
 const CARD_CATALOG = [
-  {id:'fool', element:'Celeste', name:'The Fool', effect:"Reveals your opponent's entire current hand", atk:3, def:1, cap:1, count:2, effectType:'reveal'},
-  {id:'hierophant', element:'Celeste', name:'The Hierophant', effect:'Increases ATK and DEF by 2', atk:0, def:0, cap:2, count:2, effectType:'selfBuff', params:{atk:2, def:2}},
-  {id:'wheel', element:'Celeste', name:'Wheel of Fortune', effect:'Swap a random card from an opponent', atk:3, def:2, cap:3, count:2, effectType:'swap'},
-  {id:'justice', element:'Celeste', name:'Justice', effect:"Increases all opponents' corruption by 2", atk:0, def:2, cap:4, count:2, effectType:'corruptAllOpponents', params:{amount:2}},
-  {id:'temperance', element:'Celeste', name:'Temperance', effect:'Skip your current round; ATK/DEF +5 next round', atk:0, def:5, cap:5, count:2, effectType:'skipAndBuffNext', params:{atk:5, def:5}},
-  {id:'world', element:'Celeste', name:'The World', effect:"Stop all turns of all opponents besides you", atk:6, def:7, cap:8, count:1, effectType:'freezeOpponents'},
+  {id:'fool', element:'Celeste', name:'The Fool', effect:'Reduce Corruption by 1, but also reduce DEF by 2', atk:0, def:0, cap:0, count:6, effectType:'reduceCorruptionSelfDefPenalty', params:{corr:1, defPenalty:2}},
+  {id:'hierophant', element:'Celeste', name:'The Hierophant', effect:'Temporarily increases ATK and DEF by 2 for the next round', atk:0, def:0, cap:2, count:3, effectType:'selfBuffNextRound', params:{atk:2, def:2}},
+  {id:'wheel', element:'Celeste', name:'Wheel of Fortune', effect:'Swap a random card from an opponent', atk:3, def:2, cap:3, count:3, effectType:'swap'},
+  {id:'justice', element:'Celeste', name:'Justice', effect:"Increases all opponent's corruption status by 2", atk:0, def:2, cap:4, count:3, effectType:'corruptAllOpponents', params:{amount:2}},
+  {id:'temperance', element:'Celeste', name:'Temperance', effect:'Locks you out of further actions this round (may still draw); ATK/DEF +5 next round', atk:0, def:5, cap:4, count:2, effectType:'skipAndBuffNext', params:{atk:5, def:5}},
+  {id:'world', element:'Celeste', name:'The World', effect:'Stop turns for all opponents. Go to the next round.', atk:6, def:7, cap:8, count:1, effectType:'freezeOpponents'},
 
-  {id:'emperor', element:'Crimson', name:'The Emperor', effect:'DEF +2 and heals Vessel by 1', atk:2, def:4, cap:3, count:3, effectType:'heal', params:{heal:1}},
-  {id:'chariot', element:'Crimson', name:'The Chariot', effect:'ATK bonus scales with phase (P1 +3, P2–3 +3, P4+ +5)', atk:5, def:2, cap:3, count:3, effectType:'phaseATK', params:{p1:3, p23:3, p4:5}},
-  {id:'strength', element:'Crimson', name:'Strength', effect:'Reduce corruption by 2 (doubled if combined with another corruption-reducing card this turn)', atk:0, def:3, cap:3, count:5, effectType:'corruptionReduceCombo', params:{amount:2}},
-  {id:'tower', element:'Crimson', name:'The Tower', effect:"Decrease each opponent's capacity by 2 for 1 turn", atk:3, def:3, cap:6, count:2, effectType:'capDebuffOpponents', params:{amount:2}},
-  {id:'star', element:'Crimson', name:'The Star', effect:'Heals Vessel by 2; DEF +2 for 2 turns', atk:3, def:1, cap:2, count:3, effectType:'healAndTempDef', params:{heal:2, def:2, turns:2}},
+  {id:'emperor', element:'Crimson', name:'The Emperor', effect:"The higher the opponent's Corruption than yours, multiplies your ATK by 2", atk:6, def:3, cap:7, count:1, effectType:'conditionalCorruptionMultiplyATK'},
+  {id:'chariot', element:'Crimson', name:'The Chariot', effect:'If used in Phase 1 increases current ATK by 3, Phase 2–3 increases by 2, Phase 4+ increases by 1', atk:5, def:2, cap:3, count:3, effectType:'phaseATK', params:{p1:3, p23:2, p4:1}},
+  {id:'strength', element:'Crimson', name:'Strength', effect:'Corruption is reduced by 2, and multiplies by 2 if used with another Reduce Corruption card', atk:0, def:3, cap:3, count:4, effectType:'corruptionReduceCombo', params:{amount:2}},
+  {id:'tower', element:'Crimson', name:'The Tower', effect:"Decrease each opponents' capacity by 2 for 1 turn", atk:3, def:3, cap:6, count:3, effectType:'capDebuffOpponents', params:{amount:2}},
+  {id:'star', element:'Crimson', name:'The Star', effect:'Heals Vessels by 2 and temporarily increases DEF by 4 for 2 turns', atk:3, def:1, cap:2, count:2, effectType:'healAndTempDef', params:{heal:2, def:4, turns:2}},
 
-  {id:'highpriestess', element:'Nocturne', name:'The High Priestess', effect:'Draws an additional card before turn ends', atk:2, def:2, cap:2, count:3, effectType:'drawExtra', params:{amount:1}},
-  {id:'hermit', element:'Nocturne', name:'The Hermit', effect:'Capacity +2 for 2 rounds', atk:2, def:2, cap:2, count:2, effectType:'capBuffRounds', params:{amount:2, rounds:2}},
-  {id:'hangedman', element:'Nocturne', name:'The Hanged Man', effect:'If you have the lowest Vessel, ATK +5 for 2 turns', atk:3, def:5, cap:3, count:2, effectType:'conditionalLowestVesselATK', params:{amount:5, turns:2}},
-  {id:'death', element:'Nocturne', name:'Death', effect:'Executes an opponent if their Vessel is below 10', atk:7, def:4, cap:5, count:1, effectType:'executeIfLowVessel', params:{threshold:10}},
-  {id:'devil', element:'Nocturne', name:'The Devil', effect:"Increases opponent's corruption by 3, and your own by 1", atk:8, def:3, cap:6, count:1, effectType:'corruptOpponentAndSelf', params:{opp:3, self:1}},
-  {id:'moon', element:'Nocturne', name:'The Moon', effect:'If an opponent fails to break your DEF, increase their corruption by 2', atk:4, def:5, cap:2, count:2, effectType:'conditionalDefBreakCorrupt', params:{amount:2}},
-  {id:'magician', element:'Radiance', name:'The Magician', effect:'Current attack gains +1 ATK', atk:3, def:1, cap:1, count:3, effectType:'flatATKBonus', params:{amount:1}},
-  {id:'empress', element:'Radiance', name:'The Empress', effect:'Heals Vessel by 1 and reduces corruption by 2', atk:0, def:3, cap:3, count:5, effectType:'healAndReduceCorruption', params:{heal:1, corr:2}},
-  {id:'lovers', element:'Radiance', name:'The Lovers', effect:'Paired with a Radiance card: +2 ATK. Paired with another Lovers: +3 ATK', atk:3, def:3, cap:3, count:3, effectType:'pairBonus', params:{radiance:2, lovers:3}},
-  {id:'sun', element:'Radiance', name:'The Sun', effect:'Reduces corruption by 1 and heals Vessel by 2', atk:6, def:6, cap:6, count:2, effectType:'healAndReduceCorruption', params:{heal:2, corr:1}},
-  {id:'judgement', element:'Radiance', name:'Judgement', effect:"If the target's corruption is higher than yours, ATK +3", atk:5, def:3, cap:7, count:1, effectType:'conditionalCorruptionCompareATK', params:{amount:3}},
+  {id:'highpriestess', element:'Nocturne', name:'The High Priestess', effect:'Will draw an additional card', atk:2, def:2, cap:2, count:4, effectType:'drawExtra', params:{amount:1}},
+  {id:'hermit', element:'Nocturne', name:'The Hermit', effect:'Temporarily Increases Capacity by 2 for next 2 rounds', atk:2, def:2, cap:2, count:3, effectType:'capBuffRounds', params:{amount:2, rounds:2}},
+  {id:'hangedman', element:'Nocturne', name:'The Hanged Man', effect:'If having the lowest health, have an increase in ATK by 5 for 2 turns', atk:0, def:5, cap:3, count:4, effectType:'conditionalLowestVesselATK', params:{amount:5, turns:2}},
+  {id:'death', element:'Nocturne', name:'Death', effect:'Execute an opponent if they have a Vessel of less than 5', atk:7, def:4, cap:5, count:2, effectType:'executeIfLowVessel', params:{threshold:5}},
+  {id:'devil', element:'Nocturne', name:'The Devil', effect:'Increases Corruption on opponent by 3, but to self by 1', atk:8, def:3, cap:6, count:2, effectType:'corruptOpponentAndSelf', params:{opp:3, self:1}},
+  {id:'moon', element:'Nocturne', name:'The Moon', effect:'If an opponent fails to break your DEF, increase their Corruption by 2', atk:4, def:10, cap:6, count:1, effectType:'conditionalDefBreakCorrupt', params:{amount:2}},
+
+  {id:'magician', element:'Radiance', name:'The Magician', effect:'Current Attack will have +1 ATK', atk:2, def:1, cap:1, count:3, effectType:'flatATKBonus', params:{amount:1}},
+  {id:'empress', element:'Radiance', name:'The Empress', effect:'Reduces Corruption by 2 and heals Vessels by 1', atk:0, def:3, cap:3, count:5, effectType:'healAndReduceCorruption', params:{heal:1, corr:2}},
+  {id:'lovers', element:'Radiance', name:'The Lovers', effect:'Can be used to combo with another Lovers Card to increase ATK by 2', atk:4, def:4, cap:4, count:3, effectType:'pairBonus', params:{lovers:2}},
+  {id:'sun', element:'Radiance', name:'The Sun', effect:'Reduce Corruption by 1, and heal Vessels by 2', atk:10, def:4, cap:6, count:2, effectType:'healAndReduceCorruption', params:{heal:2, corr:1}},
+  {id:'judgement', element:'Radiance', name:'Judgement', effect:'Increase current DEF by 2 for this round, and heals Vessel by 1', atk:2, def:4, cap:3, count:1, effectType:'defBuffHeal', params:{def:2, heal:1}},
 ];
 
-const NEEDS_TARGET = new Set(['reveal','swap','corruptOpponentAndSelf','executeIfLowVessel','conditionalDefBreakCorrupt','conditionalCorruptionCompareATK']);
+const NEEDS_TARGET = new Set(['swap','corruptOpponentAndSelf','executeIfLowVessel','conditionalDefBreakCorrupt','conditionalCorruptionMultiplyATK']);
 const NEEDS_EXTRA_UI = new Set(['pairBonus','conditionalDefBreakCorrupt']);
 // Cards that need neither a target pick nor an extra choice can be resolved in a single click,
 // applied on behalf of whoever is currently the active Apostle.
@@ -454,6 +490,9 @@ function makePlayer(id){
     corruptionReduceCount: 0,
     skip: false,
     desperate: false,
+    hasDrawn: false,
+    engaged: false,
+    awakened: false,
   };
 }
 
@@ -503,13 +542,23 @@ function totalAtk(p){ return p.turnATK + p.tempBuffs.reduce((s,b) => s + (b.atk|
 function totalDef(p){ return p.turnDEF + p.tempBuffs.reduce((s,b) => s + (b.def||0), 0); }
 
 function checkWin(){
-  const winner = state.players.find(p => p.souls >= SOULS_TO_WIN);
-  if(winner && !state.winnerId){
-    state.winnerId = winner.id;
-    document.getElementById('winnerBanner').style.display = 'block';
-    document.getElementById('winnerName').textContent = winner.name + ' reaches ' + winner.souls + ' souls';
-    log(winner.name + ' has ascended.', 'log-win');
-  }
+  state.players.forEach(p => {
+    if(p.souls >= SOULS_TO_WIN && !p.awakened){
+      p.awakened = true;
+      log(p.name + ' reaches ' + p.souls + ' souls — Awakened! Must travel to the Ascension Hex to win.', 'log-win');
+    }
+  });
+}
+
+// Manually confirmed by the GM once an Awakened Apostle's token physically
+// reaches the Ascension Hex on the board — this is what actually ends the game.
+function confirmAscension(id){
+  const p = getPlayer(id);
+  if(!p || !p.awakened || state.winnerId) return;
+  state.winnerId = p.id;
+  document.getElementById('winnerBanner').style.display = 'block';
+  document.getElementById('winnerName').textContent = p.name + ' reaches the Ascension Hex';
+  log(p.name + ' reaches the Ascension Hex and wins!', 'log-win');
 }
 
 function applyDesperationCheck(p){
@@ -598,6 +647,7 @@ function resolveAttack(){
   if(!attackerLocked) a.souls += totalStolen;
   a.corruption += 1;
   a.turnATK = 0;
+  a.engaged = true;
 
   const who = hits.length > 1 ? `${hits.length} adjacent Apostles` : hits[0].t.name;
   let msg = `${a.name} strikes ${who}: ` + parts.join('; ') + '.';
@@ -616,8 +666,10 @@ function resolveEndOfRound(){
     }
     if(p.corruption >= 5){
       const mult = p.desperate ? 2 : 1;
-      p.vessel = clamp(p.vessel - 2 * mult, 0, MAX_VESSEL);
-      log(p.name + ' suffers Corruption DoT: -' + (2*mult) + ' vessel.', 'log-corrupt');
+      const base = p.corruption >= 10 ? 4 : 2;
+      const dmg = base * mult;
+      log(p.name + ' suffers Corruption DoT (tier ' + (p.corruption >= 10 ? '10+' : '5+') + '): -' + dmg + ' vessel, Soullocked.', 'log-corrupt');
+      p.vessel = clamp(p.vessel - dmg, 0, MAX_VESSEL);
       applyDesperationCheck(p);
     }
     p.tempBuffs = p.tempBuffs.filter(b => {
@@ -631,6 +683,14 @@ function resolveEndOfRound(){
 function endTurn(){
   const p = getPlayer(activePlayerId());
   if(!p) return;
+
+  // New turn sequence: Spend CAP -> Engage/Disengage -> Draw 1 card -> End Turn.
+  // If the mandatory draw wasn't taken manually yet this turn, take it now automatically.
+  if(!p.hasDrawn){
+    performDraw(p);
+    p.hasDrawn = true;
+  }
+
   log(p.name + ' ends their turn.', '');
   p.turnATK = 0;
   p.tempBuffs = p.tempBuffs.filter(b => {
@@ -650,14 +710,33 @@ function endTurn(){
   advanceToUnfrozen();
 }
 
+// Draws one random card for player p, decrementing the deck and growing their hand.
+// Returns the card drawn (or null if the deck is empty). Pass silent=true to suppress
+// this function's own log line when the caller wants to log a combined message instead.
+function performDraw(p, silent){
+  const card = drawRandomCard();
+  if(!card){
+    if(!silent) log(p.name + ' tries to draw, but the deck is empty.', 'log-corrupt');
+    return null;
+  }
+  state.deckCounts[card.id] = Math.max(0, (state.deckCounts[card.id]||0) - 1);
+  p.hand += 1;
+  if(!silent) log(p.name + ' draws: ' + card.name + ' (' + card.element + ') — "' + card.effect + '"', 'log-card');
+  return card;
+}
+
 function advanceToUnfrozen(){
   let guard = 0;
   while(guard++ < state.turnOrder.length + 2){
     const next = getPlayer(activePlayerId());
     if(!next) break;
     if(next.skip){
-      log(next.name + "'s turn is frozen — skipped.", 'log-corrupt');
       next.skip = false;
+      // Drawing a card is mandatory every round no matter what effects are in
+      // play, so a frozen player still draws before their turn is skipped.
+      const drawn = performDraw(next, true);
+      const drawMsg = drawn ? `still draws: ${drawn.name} (${drawn.element})` : 'tries to draw, but the deck is empty';
+      log(`${next.name}'s turn is frozen — skipped, but ${drawMsg}.`, 'log-corrupt');
       const wasLast = state.activeIdx === state.turnOrder.length - 1;
       state.activeIdx = (state.activeIdx + 1) % state.turnOrder.length;
       if(wasLast){
@@ -670,6 +749,8 @@ function advanceToUnfrozen(){
     next.turnATK = 0;
     next.corruptionReduceCount = 0;
     next.cap = maxCapForPlayer(next);
+    next.hasDrawn = false;
+    next.engaged = false;
     break;
   }
   render();
@@ -729,7 +810,6 @@ function openPlayConsole(cardId){
   if(card.effectType === 'pairBonus'){
     extra.innerHTML = `
       <label><input type="radio" name="pairKind" value="none" checked> No pairing</label>
-      <label><input type="radio" name="pairKind" value="radiance"> Paired with a Radiance card (+${card.params.radiance} ATK)</label>
       <label><input type="radio" name="pairKind" value="lovers"> Paired with another Lovers card (+${card.params.lovers} ATK)</label>
     `;
   } else if(card.effectType === 'conditionalDefBreakCorrupt'){
@@ -745,6 +825,9 @@ function closePlayConsole(){
 }
 
 function applyCardCost(actor, card){
+  if(actor.engaged){
+    log(actor.name + ' already engaged in combat this turn — no further cards should be played (GM override).', 'log-corrupt');
+  }
   if(actor.cap < card.cap){
     log(actor.name + ' does not have enough Capacity for ' + card.name + ' — playing anyway (GM override).', 'log-corrupt');
   }
@@ -761,12 +844,14 @@ function resolveCardEffect(actor, target, card, extra){
   const p = card.params || {};
 
   switch(card.effectType){
-    case 'reveal':
-      extraMsg = target ? `Reveal ${target.name}'s hand.` : '';
+    case 'reduceCorruptionSelfDefPenalty':
+      actor.corruption = clamp(actor.corruption - p.corr, 0, 20);
+      actor.turnDEF -= p.defPenalty;
+      extraMsg = `Corruption -${p.corr}, but DEF -${p.defPenalty} this turn.`;
       break;
-    case 'selfBuff':
-      actor.turnATK += p.atk; actor.turnDEF += p.def;
-      extraMsg = `+${p.atk} ATK / +${p.def} DEF this turn.`;
+    case 'selfBuffNextRound':
+      actor.tempBuffs.push({label:'Hierophant', atk:p.atk, def:p.def, remaining:1, kind:'ownTurns'});
+      extraMsg = `+${p.atk} ATK / +${p.def} DEF queued for next round.`;
       break;
     case 'swap':
       extraMsg = target ? `Swap a random card with ${target.name} (adjust hands manually).` : '';
@@ -776,17 +861,21 @@ function resolveCardEffect(actor, target, card, extra){
       extraMsg = `All opponents' corruption +${p.amount}.`;
       break;
     case 'skipAndBuffNext':
-      actor.skip = true;
+      actor.cap = 0;
       actor.tempBuffs.push({label:'Temperance', atk:p.atk, def:p.def, remaining:1, kind:'ownTurns'});
-      extraMsg = `${actor.name} skips the rest of this round; +${p.atk} ATK / +${p.def} DEF queued for next round.`;
+      extraMsg = `${actor.name} is locked out of further actions for the rest of this round (may still draw); +${p.atk} ATK / +${p.def} DEF queued for next round.`;
       break;
     case 'freezeOpponents':
       state.players.forEach(o => { if(o.id !== actor.id) o.skip = true; });
       extraMsg = `All opponents' next turns are frozen.`;
       break;
-    case 'heal':
-      actor.vessel = clamp(actor.vessel + p.heal, 0, MAX_VESSEL);
-      extraMsg = `Vessel +${p.heal}.`;
+    case 'conditionalCorruptionMultiplyATK':
+      if(target && target.corruption > actor.corruption){
+        actor.turnATK += card.atk;
+        extraMsg = `${target.name}'s corruption is higher — ATK doubled (+${card.atk} more).`;
+      } else {
+        extraMsg = `Condition not met — ATK not doubled.`;
+      }
       break;
     case 'phaseATK': {
       const bonus = state.phase === 1 ? p.p1 : (state.phase <= 3 ? p.p23 : p.p4);
@@ -881,18 +970,14 @@ function resolveCardEffect(actor, target, card, extra){
       break;
     case 'pairBonus': {
       const kind = extra.pairKind || 'none';
-      if(kind === 'radiance'){ actor.turnATK += p.radiance; extraMsg = `Paired with Radiance — +${p.radiance} ATK.`; }
-      else if(kind === 'lovers'){ actor.turnATK += p.lovers; extraMsg = `Paired with Lovers — +${p.lovers} ATK.`; }
+      if(kind === 'lovers'){ actor.turnATK += p.lovers; extraMsg = `Paired with another Lovers card — +${p.lovers} ATK.`; }
       else { extraMsg = `No pairing bonus applied.`; }
       break;
     }
-    case 'conditionalCorruptionCompareATK':
-      if(target && target.corruption > actor.corruption){
-        actor.turnATK += p.amount;
-        extraMsg = `${target.name}'s corruption is higher — +${p.amount} ATK.`;
-      } else {
-        extraMsg = `Condition not met — no bonus applied.`;
-      }
+    case 'defBuffHeal':
+      actor.turnDEF += p.def;
+      actor.vessel = clamp(actor.vessel + p.heal, 0, MAX_VESSEL);
+      extraMsg = `DEF +${p.def} this round; Vessel +${p.heal}.`;
       break;
   }
 
@@ -995,15 +1080,18 @@ function render(){
     const soulsPct = clamp((p.souls / SOULS_TO_WIN) * 100, 0, 100);
 
     let pips = '';
-    for(let i = 1; i <= 5; i++){
-      pips += '<div class="pip ' + (p.corruption >= i ? 'lit ' : '') + (i === 5 ? 'threshold' : '') + '"></div>';
+    for(let i = 1; i <= 10; i++){
+      pips += '<div class="pip ' + (p.corruption >= i ? 'lit ' : '') + (i === 5 || i === 10 ? 'threshold' : '') + '"></div>';
     }
 
     let tags = '';
-    if(p.corruption >= 5) tags += '<span class="tag">Corrupted — soul lock</span>';
+    if(p.corruption >= 10) tags += '<span class="tag">Corrupted 10+ — Soullocked, -4 Vessel/round</span>';
+    else if(p.corruption >= 5) tags += '<span class="tag">Corrupted 5+ — Soullocked, -2 Vessel/round</span>';
     if(p.hand >= 8) tags += '<span class="tag warn">Hand overflow — +1 Corruption at round end</span>';
     if(p.desperate) tags += '<span class="tag">Desperate ×2</span>';
+    if(p.engaged) tags += '<span class="tag warn">Engaged — no more cards this turn</span>';
     if(p.skip) tags += '<span class="tag freeze">Frozen — skips next</span>';
+    if(p.awakened && !state.winnerId) tags += '<span class="tag buff">Awakened — reach the Ascension Hex to win</span>';
     p.tempBuffs.forEach(b => {
       const parts = [];
       if(b.atk) parts.push('+'+b.atk+' ATK');
@@ -1041,7 +1129,7 @@ function render(){
       </div>
 
       <div class="stat-block">
-        <div class="stat-label"><span>Corruption</span><span class="val">${p.corruption} / 5</span></div>
+        <div class="stat-label"><span>Corruption</span><span class="val">${p.corruption} / 10</span></div>
         <div class="corruption-pips">${pips}</div>
         <div class="stepper" style="margin-top:6px;">
           <button data-action="corruption" data-delta="-1" data-id="${p.id}">−1</button>
@@ -1077,6 +1165,7 @@ function render(){
       <div class="mini-actions">
         <button data-action="toggleShield" data-id="${p.id}">${p.skip ? 'Clear freeze' : 'Force freeze'}</button>
         <button data-action="toggleDesperate" data-id="${p.id}">${p.desperate ? 'Clear desperation' : 'Force desperation'}</button>
+        ${p.awakened && !state.winnerId ? `<button data-action="confirmAscension" data-id="${p.id}" class="primary">Confirm Ascension (Win)</button>` : ''}
       </div>
     `;
     grid.appendChild(card);
@@ -1126,10 +1215,12 @@ function renderDeck(){
 
     details.innerHTML = `
       <summary>${elName} <span class="count-tag">${remainingSum} / ${totalSum} remaining</span></summary>
-      <table class="cardtable">
-        <thead><tr><th>Card</th><th>Effect</th><th>Stats</th><th>Remaining</th><th></th></tr></thead>
-        <tbody>${rowsHtml}</tbody>
-      </table>
+      <div class="table-scroll">
+        <table class="cardtable">
+          <thead><tr><th>Card</th><th>Effect</th><th>Stats</th><th>Remaining</th><th></th></tr></thead>
+          <tbody>${rowsHtml}</tbody>
+        </table>
+      </div>
     `;
     groups.appendChild(details);
   });
@@ -1151,6 +1242,7 @@ document.getElementById('playerGrid').addEventListener('click', (e) => {
   if(action === 'hand'){ p.hand = clamp(p.hand + parseInt(btn.dataset.delta,10), 0, 20); }
   if(action === 'toggleShield'){ p.skip = !p.skip; }
   if(action === 'toggleDesperate'){ p.desperate = !p.desperate; }
+  if(action === 'confirmAscension'){ confirmAscension(p.id); }
   render();
 });
 
@@ -1181,11 +1273,11 @@ document.getElementById('rotCCW').addEventListener('click', () => setRotation('c
 document.getElementById('drawBtn').addEventListener('click', () => {
   const p = getPlayer(activePlayerId());
   if(!p) return;
-  const card = drawRandomCard();
-  if(!card){ log('The deck is empty — no card drawn.', 'log-corrupt'); render(); return; }
-  state.deckCounts[card.id] = Math.max(0, (state.deckCounts[card.id]||0) - 1);
-  p.hand += 1;
-  log(p.name + ' draws: ' + card.name + ' (' + card.element + ') — "' + card.effect + '"', 'log-card');
+  if(p.hasDrawn){
+    log(p.name + ' has already taken their 1 card draw this turn — drawing anyway (GM override).', 'log-corrupt');
+  }
+  performDraw(p);
+  p.hasDrawn = true;
   render();
 });
 document.getElementById('endTurnBtn').addEventListener('click', endTurn);
