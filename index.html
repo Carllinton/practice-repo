@@ -767,7 +767,7 @@ const CARD_CATALOG = [
   {id:'chariot', element:'Crimson', name:'The Chariot', effect:'If used in Phase 1 increases current ATK by 3, Phase 2–3 increases by 2, Phase 4+ increases by 1', atk:5, def:2, cap:3, count:3, effectType:'phaseATK', params:{p1:3, p23:2, p4:1}},
   {id:'strength', element:'Crimson', name:'Strength', effect:'Corruption is reduced by 2, and multiplies by 2 if used with another Reduce Corruption card', atk:0, def:3, cap:3, count:4, effectType:'corruptionReduceCombo', params:{amount:2}},
   {id:'tower', element:'Crimson', name:'The Tower', effect:"Decrease each opponents' capacity by 2 for 1 turn", atk:3, def:3, cap:6, count:3, effectType:'capDebuffOpponents', params:{amount:2}},
-  {id:'star', element:'Crimson', name:'The Star', effect:'Heals Vessels by 2 and temporarily increases DEF by 4 for 2 turns', atk:3, def:1, cap:2, count:2, effectType:'healAndTempDef', params:{heal:2, def:4, turns:2}},
+  {id:'star', element:'Crimson', name:'The Star', effect:'Heals Vessels by 2 and temporarily increases DEF by 4 for 2 turns', atk:0, def:6, cap:4, count:2, effectType:'healAndTempDef', params:{heal:2, def:4, turns:2}},
 
   {id:'highpriestess', element:'Nocturne', name:'The High Priestess', effect:'Will draw an additional card', atk:2, def:2, cap:2, count:4, effectType:'drawExtra', params:{amount:1}},
   {id:'hermit', element:'Nocturne', name:'The Hermit', effect:'Temporarily Increases Capacity by 2 for next 2 rounds', atk:2, def:2, cap:2, count:3, effectType:'capBuffRounds', params:{amount:2, rounds:2}},
