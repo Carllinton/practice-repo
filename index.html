@@ -6,236 +6,581 @@
 <title>Apostle Arena — GM Ledger</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Cinzel:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
-  :root{
-    --ink:#0a0b12;
-    --panel:#12141f;
-    --panel-raised:#181b29;
-    --gold:#c9a961;
-    --gold-dim:#7d6a3f;
-    --crimson:#8c2f3a;
-    --crimson-bright:#d84a58;
-    --celeste:#4a6fa5;
-    --nocturne:#7a5ea8;
-    --radiance:#c9903f;
-    --parchment:#e9e2cd;
-    --parchment-dim:#a39c8a;
-    --line:#2a2d3d;
-    --good:#5a9c6e;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:
-      radial-gradient(circle at 15% 10%, rgba(74,111,165,0.10), transparent 40%),
-      radial-gradient(circle at 85% 90%, rgba(140,47,58,0.10), transparent 40%),
-      var(--ink);
-    color:var(--parchment);
-    font-family:'Inter', -apple-system, sans-serif;
-    min-height:100vh;
-    padding:28px 20px 60px;
-  }
-  h1,h2,h3{font-family:'Cinzel', 'Cormorant Garamond', serif; letter-spacing:0.02em; margin:0;}
+:root{
+  --black:#1b1516;
+  --navy:#222a33;
+  --slate:#3c424a;
+  --red:#991719;
+  --red-bright:#d33a3d;
+  --white:#eeeeee;
+  --muted:#9ba2aa;
+  --line:#35404b;
+  --panel:#18212a;
+  --panel-2:#202b35;
+  --panel-3:#26333e;
+}
 
-  .stars{
-    position:fixed; inset:0; pointer-events:none; opacity:0.5;
-    background-image:
-      radial-gradient(1px 1px at 20px 30px, var(--parchment-dim), transparent),
-      radial-gradient(1px 1px at 140px 90px, var(--parchment-dim), transparent),
-      radial-gradient(1px 1px at 260px 40px, var(--parchment-dim), transparent),
-      radial-gradient(1px 1px at 340px 170px, var(--parchment-dim), transparent),
-      radial-gradient(1px 1px at 400px 60px, var(--parchment-dim), transparent);
-    background-repeat:repeat;
-    background-size:420px 220px;
-  }
+*{box-sizing:border-box}
 
-  .wrap{max-width:1320px; margin:0 auto; position:relative;}
+html,body{
+  margin:0;
+  min-height:100%;
+  background:var(--black);
+  color:var(--white);
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
 
-  header{
-    display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:18px;
-    border-bottom:1px solid var(--line); padding-bottom:18px; margin-bottom:22px;
-  }
-  header h1{font-size:28px; color:var(--gold); font-weight:700;}
-  header .sub{font-family:'Cormorant Garamond', serif; font-style:italic; color:var(--parchment-dim); font-size:15px; margin-top:4px;}
-  .win-target{text-align:right; font-family:'Cormorant Garamond', serif; color:var(--parchment-dim); font-size:14px;}
-  .win-target b{color:var(--gold); font-size:22px; font-family:'Cinzel',serif; display:block;}
+body{min-height:100vh}
 
-  .control-strip{
-    display:flex; flex-wrap:wrap; gap:14px; align-items:center;
-    background:var(--panel); border:1px solid var(--line); padding:14px 18px; margin-bottom:22px;
-    position:relative;
-  }
-  .control-strip::before, .control-strip::after{
-    content:""; position:absolute; width:10px; height:10px; border:1px solid var(--gold-dim);
-  }
-  .control-strip::before{top:-1px; left:-1px; border-right:none; border-bottom:none;}
-  .control-strip::after{bottom:-1px; right:-1px; border-left:none; border-top:none;}
+button,input,select{font:inherit}
 
-  .cs-group{display:flex; align-items:center; gap:8px;}
-  .cs-label{font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--parchment-dim);}
-  .phase-round{font-family:'Cinzel', serif; font-size:16px; color:var(--parchment);}
-  .phase-round .num{color:var(--gold);}
-  .cap-chip{
-    font-family:'Cinzel', serif; font-size:13px; background:var(--panel-raised); border:1px solid var(--gold-dim);
-    padding:4px 10px; color:var(--gold);
-  }
-  .deck-chip{
-    font-family:'Cinzel', serif; font-size:13px; background:var(--panel-raised); border:1px solid var(--nocturne);
-    padding:4px 10px; color:#c3b3e6;
-  }
+button{
+  cursor:pointer;
+  border:1px solid #46535f;
+  background:var(--panel-2);
+  color:var(--white);
+  border-radius:4px;
+  padding:9px 12px;
+  font-size:11px;
+  transition:.15s ease;
+}
+button:hover{background:var(--panel-3);border-color:#657482}
+button:disabled{opacity:.35;cursor:not-allowed}
+button.primary{background:var(--red);border-color:var(--red);color:#fff}
+button.primary:hover{background:#b51d20;border-color:#b51d20}
+button.danger{color:#ef9a9a;border-color:#693537;background:transparent}
+button.ghost{background:transparent}
+button.tiny{padding:5px 8px;font-size:10px}
 
-  select, input[type=number], input[type=text]{
-    background:var(--panel-raised); border:1px solid var(--line); color:var(--parchment);
-    font-family:'Inter', sans-serif; padding:6px 8px; font-size:13px;
-  }
-  select:focus, input:focus{outline:1px solid var(--gold); outline-offset:1px;}
-  select:disabled{opacity:0.4;}
+select,input[type=text],input[type=number]{
+  background:var(--panel-2);
+  color:var(--white);
+  border:1px solid #46535f;
+  border-radius:4px;
+  padding:8px 9px;
+  font-size:11px;
+}
+select:focus,input:focus{
+  outline:1px solid var(--red-bright);
+  outline-offset:1px;
+}
 
-  button{
-    font-family:'Inter', sans-serif; font-weight:600; font-size:12.5px; letter-spacing:0.02em;
-    background:var(--panel-raised); color:var(--parchment); border:1px solid var(--gold-dim);
-    padding:7px 13px; cursor:pointer; transition:background 0.15s, border-color 0.15s;
-  }
-  button:hover{border-color:var(--gold); background:#1e2233;}
-  button:active{transform:translateY(1px);}
-  button:disabled{opacity:0.3; cursor:not-allowed;}
-  button.primary{background:var(--gold); color:#1a1200; border-color:var(--gold);}
-  button.primary:hover{background:#dab873;}
-  button.danger{border-color:var(--crimson);}
-  button.danger:hover{background:#2a1418; border-color:var(--crimson-bright);}
-  button.ghost{background:transparent;}
-  button.tiny{padding:4px 9px; font-size:11px;}
-  .btn-row{display:flex; gap:8px; flex-wrap:wrap;}
-  .spacer{flex:1;}
+.wrap{
+  width:100%;
+  min-height:100vh;
+  background:
+    linear-gradient(90deg,var(--black) 0 244px,#101820 244px 100%);
+}
 
-  #winnerBanner{
-    display:none; background:linear-gradient(90deg, rgba(201,169,97,0.15), rgba(201,169,97,0.02));
-    border:1px solid var(--gold); padding:16px 20px; margin-bottom:22px; text-align:center;
-  }
-  #winnerBanner h2{color:var(--gold); font-size:22px;}
-  #winnerBanner p{font-family:'Cormorant Garamond', serif; font-style:italic; color:var(--parchment-dim); margin:4px 0 0;}
+/* HEADER */
+header{
+  height:94px;
+  padding:0 34px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid #313941;
+  background:var(--black);
+}
 
-  .player-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(270px, 1fr)); gap:16px; margin-bottom:26px;}
-  .player-card{position:relative; background:var(--panel); border:1px solid var(--line); padding:18px; transition:border-color 0.2s, box-shadow 0.2s;}
-  .player-card::before, .player-card::after{content:""; position:absolute; width:12px; height:12px; border:1px solid var(--gold-dim); opacity:0.7;}
-  .player-card::before{top:-1px; left:-1px; border-right:none; border-bottom:none;}
-  .player-card::after{bottom:-1px; right:-1px; border-left:none; border-top:none;}
-  .player-card.active{border-color:var(--gold); box-shadow:0 0 0 1px rgba(201,169,97,0.35), 0 0 26px rgba(201,169,97,0.08);}
-  .player-card.desperate{border-color:var(--crimson-bright);}
-  .player-card.corrupted .name-row .name{color:var(--crimson-bright);}
+header > div:first-child{
+  display:flex;
+  align-items:center;
+  gap:20px;
+}
 
-  .name-row{display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; gap:8px;}
-  .name-row input.name{background:none; border:none; font-family:'Cinzel', serif; font-size:17px; color:var(--parchment); padding:2px 0; width:100%; border-bottom:1px dashed transparent;}
-  .name-row input.name:hover, .name-row input.name:focus{border-bottom:1px dashed var(--gold-dim);}
-  .badge-active{font-size:10px; text-transform:uppercase; letter-spacing:0.08em; color:#1a1200; background:var(--gold); padding:3px 7px; white-space:nowrap; display:none;}
-  .player-card.active .badge-active{display:inline-block;}
+header > div:first-child::before{
+  content:"♛";
+  width:52px;
+  height:52px;
+  display:grid;
+  place-items:center;
+  color:var(--white);
+  font-size:30px;
+  border-right:1px solid #6d7278;
+  padding-right:18px;
+}
 
-  .stat-block{margin:12px 0;}
-  .stat-label{display:flex; justify-content:space-between; font-size:11px; text-transform:uppercase; letter-spacing:0.07em; color:var(--parchment-dim); margin-bottom:5px;}
-  .stat-label .val{color:var(--parchment); font-family:'Cinzel', serif; font-size:12.5px; letter-spacing:0;}
+header h1{
+  margin:0;
+  color:var(--white);
+  font-size:20px;
+  font-weight:500;
+  letter-spacing:.28em;
+  text-transform:uppercase;
+}
 
-  .bar-track{height:8px; background:#000; border:1px solid var(--line); position:relative; overflow:hidden;}
-  .bar-fill{height:100%; transition:width 0.25s ease;}
-  .bar-fill.vessel{background:linear-gradient(90deg,#5a2226,var(--crimson-bright));}
-  .bar-fill.souls{background:linear-gradient(90deg,#7a5f18,var(--gold));}
+header .sub{display:none}
 
-  .stepper{display:flex; align-items:center; gap:6px;}
-  .stepper button{padding:3px 9px; font-size:14px; line-height:1;}
-  .stepper .amt{width:42px; text-align:center; font-family:'Cinzel', serif; font-size:14px; background:none; border:none; color:var(--parchment);}
+.win-target{
+  color:var(--muted);
+  font-size:11px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
 
-  .corruption-pips{display:flex; gap:4px; margin-top:6px;}
-  .pip{width:16px; height:16px; border:1px solid var(--gold-dim); background:var(--panel-raised); flex:1; position:relative;}
-  .pip.lit{background:var(--crimson); border-color:var(--crimson-bright);}
-  .pip.threshold{border-color:var(--gold);}
-  .status-tags{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; min-height:20px;}
-  .tag{font-size:10px; text-transform:uppercase; letter-spacing:0.05em; padding:2px 7px; border:1px solid var(--crimson-bright); color:var(--crimson-bright);}
-  .tag.warn{border-color:#b98a2e; color:#d9a53d;}
-  .tag.shield{border-color:var(--celeste); color:#8fb0dd;}
-  .tag.buff{border-color:var(--nocturne); color:#c3b3e6;}
-  .tag.freeze{border-color:#6f8fd4; color:#a9bdf0;}
+.win-target b{
+  color:var(--white);
+  font-size:12px;
+  font-weight:600;
+  margin:0;
+}
 
-  .combat-mini{display:flex; gap:10px; margin-top:10px;}
-  .combat-mini div{flex:1; text-align:center; background:var(--panel-raised); border:1px solid var(--line); padding:6px 4px;}
-  .combat-mini div b{display:block; font-family:'Cinzel', serif; font-size:15px; color:var(--gold);}
-  .combat-mini div span{font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--parchment-dim);}
+/* WINNER */
+#winnerBanner{
+  display:none;
+  margin:16px 20px 0 264px;
+  padding:12px 16px;
+  background:var(--panel);
+  border:1px solid var(--red);
+}
+#winnerBanner h2{font-size:14px}
+#winnerBanner p{margin:3px 0 0;color:var(--muted);font-size:11px}
 
-  .hand-row{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:10px;}
-  .hand-row .stepper .amt{width:30px;}
+/* APP GRID */
+.app-shell{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 316px;
+  min-height:calc(100vh - 94px);
+}
 
-  .mini-actions{display:flex; gap:6px; flex-wrap:wrap; margin-top:12px; border-top:1px solid var(--line); padding-top:12px;}
-  .mini-actions button{flex:1; font-size:11px; padding:6px 6px;}
+/* MAIN */
+.main-area{
+  min-width:0;
+  background:#101820;
+  padding:22px;
+}
 
-  .panel-block{background:var(--panel); border:1px solid var(--line); padding:18px 20px; margin-bottom:22px; position:relative;}
-  .panel-block h3{color:var(--gold); font-size:16px; margin-bottom:14px;}
-  .resolver-row{display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;}
-  .field{display:flex; flex-direction:column; gap:4px;}
-  .field label{font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--parchment-dim);}
-  .field select, .field input{min-width:150px;}
-  .target-list{display:flex; flex-direction:column; gap:6px; background:var(--panel-raised); border:1px solid var(--line); padding:8px 10px; min-width:280px;}
-  .target-row{display:flex; align-items:center; gap:10px;}
-  .target-row .target-check{display:flex; align-items:center; gap:7px; flex:1; font-size:13px; color:var(--parchment); cursor:pointer;}
-  .target-row .target-check input{cursor:pointer;}
-  .target-row .target-def{font-family:'Cinzel', serif; font-size:11.5px; color:var(--celeste); white-space:nowrap; min-width:52px;}
-  .target-row .target-dmg{width:64px; text-align:center;}
-  .target-row.disabled{opacity:0.35;}
-  #resolveLog{margin-top:14px; font-family:'Cormorant Garamond', serif; font-size:14.5px; color:var(--parchment-dim); max-height:180px; overflow-y:auto; border-top:1px solid var(--line); padding-top:10px;}
-  #resolveLog div{margin-bottom:4px;}
-  #resolveLog div.log-win{color:var(--gold); font-weight:600;}
-  #resolveLog div.log-corrupt{color:var(--crimson-bright);}
-  #resolveLog div.log-card{color:#c3b3e6;}
+.section-label{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:#c8d0d8;
+  font-size:11px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  margin-bottom:14px;
+}
+.section-label::before{
+  content:"";
+  width:4px;
+  height:20px;
+  background:var(--red-bright);
+  display:block;
+}
 
-  .deck-groups{display:flex; flex-direction:column; gap:14px;}
-  .deck-group summary{
-    cursor:pointer; font-family:'Cinzel', serif; font-size:14px; padding:10px 16px;
-    background:var(--panel-raised); border:1px solid var(--line); list-style:none; display:flex; justify-content:space-between; align-items:center;
-  }
-  .deck-group summary::-webkit-details-marker{display:none;}
-  .deck-group[open] summary{border-bottom:none;}
-  .deck-group .count-tag{font-size:11px; color:var(--parchment-dim); font-family:'Inter',sans-serif;}
-  table.cardtable{width:100%; border-collapse:collapse; font-size:13px; border:1px solid var(--line); border-top:none;}
-  table.cardtable th{text-align:left; font-family:'Cinzel', serif; font-weight:500; font-size:10.5px; text-transform:uppercase; letter-spacing:0.05em; color:var(--parchment-dim); padding:9px 12px; border-bottom:1px solid var(--line);}
-  table.cardtable td{padding:9px 12px; border-bottom:1px solid var(--line); vertical-align:middle;}
-  table.cardtable tr:last-child td{border-bottom:none;}
-  table.cardtable td.cardname{font-family:'Cinzel', serif; white-space:nowrap;}
-  table.cardtable td.stats{white-space:nowrap; color:var(--gold); font-family:'Cinzel',serif; font-size:11.5px;}
-  table.cardtable td.remain{white-space:nowrap; text-align:center;}
-  table.cardtable td.remain input{width:46px; text-align:center;}
-  table.cardtable td.playcell{white-space:nowrap;}
-  table.cardtable td.playcell button{white-space:nowrap;}
-  .el-celeste{color:var(--celeste);}
-  .el-crimson{color:var(--crimson-bright);}
-  .el-nocturne{color:var(--nocturne);}
-  .el-radiance{color:var(--radiance);}
+.player-grid{
+  margin:0;
+  padding:0;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(130px,1fr));
+  gap:14px;
+}
 
-  #playConsole{border:1px solid var(--gold-dim); background:#171a28;}
-  #playConsole .pc-title{font-family:'Cinzel', serif; color:var(--gold); font-size:14px; margin-bottom:4px;}
-  #playConsole .pc-effect{font-family:'Cormorant Garamond', serif; font-style:italic; color:var(--parchment-dim); font-size:14px; margin-bottom:12px;}
-  .pc-extra{display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-top:10px; font-size:13px;}
-  .pc-extra label{display:flex; align-items:center; gap:6px; color:var(--parchment-dim);}
+.player-card{
+  min-height:154px;
+  background:linear-gradient(145deg,#1c2832,#17212a);
+  border:1px solid #394955;
+  border-radius:4px;
+  padding:18px;
+  position:relative;
+}
+.player-card.active{
+  border-color:var(--red-bright);
+  box-shadow:inset 0 -2px 0 var(--red-bright);
+}
+.player-card.desperate{border-color:#9a4b4d}
+.player-card:has(.tag.warn){
+  border-color:#7c4042;
+}
 
-  .add-card-form{display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; margin-top:14px; padding-top:14px; border-top:1px dashed var(--line);}
-  .add-card-form .field input, .add-card-form .field select{min-width:110px;}
-  .add-card-form .field.wide input{min-width:220px;}
+.player-card.corrupted .name-row .name{color:#ed7476}
 
-  footer{text-align:center; color:var(--parchment-dim); font-family:'Cormorant Garamond', serif; font-style:italic; font-size:13px; margin-top:30px;}
+.name-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:18px;
+}
 
-  @media (max-width: 640px){
-    header{flex-direction:column; align-items:flex-start;}
-    .win-target{text-align:left;}
-    table.cardtable{font-size:12px;}
-  }
+.name-row input.name{
+  width:100%;
+  padding:2px 0;
+  background:transparent;
+  border:0;
+  color:var(--white);
+  font-size:12px;
+  font-weight:600;
+}
+.name-row input.name:focus{outline:none;border-bottom:1px solid #65717c}
+
+.badge-active{
+  display:none;
+  background:var(--red);
+  color:#fff;
+  padding:4px 6px;
+  font-size:8px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.player-card.active .badge-active{display:inline-block}
+
+.stat-block{margin:10px 0}
+.stat-label{
+  display:flex;
+  justify-content:space-between;
+  color:#89939d;
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  margin-bottom:6px;
+}
+.stat-label .val{
+  color:var(--white);
+  font-size:10px;
+}
+
+.bar-track{
+  height:6px;
+  background:#11171d;
+  border:1px solid #303a43;
+  overflow:hidden;
+}
+.bar-fill{height:100%;transition:width .25s}
+.bar-fill.vessel{background:#7e8993}
+.bar-fill.souls{background:#c5ccd2}
+
+.stepper{display:flex;align-items:center;gap:3px}
+.stepper button{padding:3px 7px;font-size:9px}
+.stepper .amt{
+  width:38px;
+  text-align:center;
+  background:transparent;
+  border:0;
+  color:var(--white);
+  font-size:10px;
+}
+
+.corruption-pips{display:flex;gap:3px;margin-top:5px}
+.pip{height:5px;flex:1;background:#222b34;border:1px solid #3c4853}
+.pip.lit{background:var(--red);border-color:#d25b5e}
+.pip.threshold{border-color:#7a838b}
+
+.status-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px;min-height:15px}
+.tag{
+  padding:3px 5px;
+  font-size:8px;
+  color:#e37b7d;
+  border:1px solid #7c4042;
+  text-transform:uppercase;
+}
+.tag.warn{color:#e37b7d;border-color:#7c4042;background:rgba(153,23,25,.12)}
+.tag.shield{color:#9ab4d0;border-color:#4d647c}
+.tag.buff{color:#bca5db;border-color:#65557b}
+.tag.freeze{color:#9db8d9;border-color:#526a84}
+
+.combat-mini{display:flex;gap:4px;margin-top:8px}
+.combat-mini div{
+  flex:1;
+  text-align:center;
+  background:#19232c;
+  border:1px solid #2e3a45;
+  padding:5px;
+}
+.combat-mini div b{display:block;font-size:11px}
+.combat-mini div span{
+  color:#7f8992;
+  font-size:8px;
+  text-transform:uppercase;
+}
+
+.hand-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:8px;
+}
+.hand-row .stepper .amt{width:28px}
+
+.mini-actions{
+  display:flex;
+  gap:4px;
+  margin-top:10px;
+  padding-top:9px;
+  border-top:1px solid #2a353e;
+}
+.mini-actions button{flex:1;padding:5px 4px;font-size:8px}
+
+/* EXISTING FUNCTIONAL PANELS */
+.panel-block{
+  background:var(--panel);
+  border:1px solid #35434f;
+  border-radius:4px;
+  padding:16px;
+  margin:20px 0 0;
+}
+.panel-block h3{
+  color:#d4dbe1;
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  margin:0 0 13px;
+}
+.resolver-row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:flex-end;
+}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{
+  color:#85919b;
+  font-size:8px;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+}
+.field select,.field input{min-width:120px}
+
+.target-list{
+  min-width:280px;
+  background:#19232c;
+  border:1px solid #35434f;
+  padding:7px;
+}
+.target-row{display:flex;align-items:center;gap:7px}
+.target-row .target-check{flex:1;font-size:10px}
+.target-row .target-def{color:#89959f;font-size:9px}
+.target-row .target-dmg{width:52px}
+.target-row.disabled{opacity:.35}
+
+#resolveLog{
+  margin-top:11px;
+  padding-top:9px;
+  border-top:1px solid #2c3741;
+  color:#8c97a1;
+  font-size:10px;
+  max-height:130px;
+  overflow-y:auto;
+}
+#resolveLog div{margin-bottom:4px}
+#resolveLog div.log-win{color:#e8edf1}
+#resolveLog div.log-corrupt{color:#df7275}
+#resolveLog div.log-card{color:#aab5be}
+
+/* DECK */
+#deckPanel{margin-top:20px}
+.deck-groups{display:flex;flex-direction:column;gap:7px}
+.deck-group summary{
+  cursor:pointer;
+  list-style:none;
+  display:flex;
+  justify-content:space-between;
+  padding:9px 11px;
+  background:#1d2832;
+  border:1px solid #35434f;
+  color:#d6dde3;
+  font-size:10px;
+  font-weight:600;
+}
+.deck-group summary::-webkit-details-marker{display:none}
+.deck-group .count-tag{color:#818d97;font-size:9px}
+table.cardtable{
+  width:100%;
+  border-collapse:collapse;
+  border:1px solid #35434f;
+  border-top:0;
+  font-size:9px;
+}
+table.cardtable th{
+  padding:7px 9px;
+  text-align:left;
+  color:#7f8b95;
+  font-size:8px;
+  text-transform:uppercase;
+  letter-spacing:.07em;
+  border-bottom:1px solid #2c3842;
+}
+table.cardtable td{
+  padding:7px 9px;
+  border-bottom:1px solid #27323c;
+}
+table.cardtable tr:last-child td{border-bottom:0}
+table.cardtable td.cardname{font-weight:600;white-space:nowrap}
+table.cardtable td.stats{color:#aeb8c0}
+table.cardtable td.remain{text-align:center}
+table.cardtable td.remain input{width:42px;text-align:center;padding:5px}
+table.cardtable td.playcell{white-space:nowrap}
+
+.el-celeste{color:#9bb7d4}
+.el-crimson{color:#d97779}
+.el-nocturne{color:#b39bd1}
+.el-radiance{color:#d3ad70}
+
+#playConsole{
+  border-color:#53606b;
+  background:#19232c;
+}
+#playConsole .pc-title{font-size:11px;color:#e4e9ed}
+#playConsole .pc-effect{font-size:10px;color:#8c98a2}
+.pc-extra{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;font-size:9px;color:#8c98a2}
+
+.add-card-form{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  align-items:flex-end;
+  margin-top:11px;
+  padding-top:11px;
+  border-top:1px dashed #34404a;
+}
+.add-card-form .field.wide input{min-width:180px}
+
+#cycleDeckBtn{margin:20px 0 0}
+footer{
+  margin:22px 0 0;
+  padding-bottom:24px;
+  color:#68737d;
+  font-size:9px;
+  line-height:1.5;
+}
+
+/* RIGHT CONTROL PANEL */
+.right-panel{
+  background:#151d25;
+  border-left:1px solid #303a43;
+  padding:22px 18px;
+}
+
+.right-section{
+  padding:0 0 18px;
+  margin-bottom:18px;
+  border-bottom:1px solid #33404a;
+}
+.right-section:last-child{border-bottom:0}
+
+.right-title{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:12px;
+  color:#d4dce3;
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.right-title::before{
+  content:"";
+  width:4px;
+  height:20px;
+  background:var(--red-bright);
+}
+
+.phase-box{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  padding:12px;
+  background:#202b35;
+  border:1px solid #41515e;
+  border-radius:4px;
+  color:#dce3e8;
+  font-size:11px;
+}
+.phase-box .phase-symbol{font-size:18px;margin-right:10px}
+.phase-box select{flex:1;background:transparent;border:0;padding:0}
+
+.action-stack{display:flex;flex-direction:column;gap:9px}
+.action-stack button{
+  width:100%;
+  height:50px;
+  display:flex;
+  align-items:center;
+  gap:13px;
+  text-align:left;
+  font-size:11px;
+}
+.action-stack button::before{
+  content:"";
+  width:18px;
+  text-align:center;
+  color:#d7e0e7;
+  font-size:16px;
+}
+#drawBtn::before{content:"▣"}
+#endTurnBtn::before{content:"○"}
+
+.game-info{display:flex;flex-direction:column}
+.info-row{
+  display:flex;
+  justify-content:space-between;
+  padding:10px 8px;
+  border-bottom:1px solid #2d3943;
+  color:#8e9aa4;
+  font-size:10px;
+}
+.info-row b{color:#e2e7eb;font-weight:600}
+
+.rotation-row{
+  display:flex;
+  gap:7px;
+}
+.rotation-row button{flex:1}
+
+.settings-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+}
+.settings-row .field{flex:1;min-width:100px}
+
+#playConsole .resolver-row{align-items:flex-end}
+
+/* Hide toolbar from the old layout; its controls are represented in the side panel. */
+.control-strip{
+  display:none;
+}
+
+/* responsive */
+@media(max-width:1100px){
+  .app-shell{grid-template-columns:minmax(0,1fr) 280px}
+  .player-grid{grid-template-columns:repeat(2,minmax(130px,1fr))}
+}
+@media(max-width:760px){
+  header{height:72px;padding:0 16px}
+  header h1{font-size:15px}
+  header > div:first-child::before{width:38px;height:38px;font-size:22px}
+  .app-shell{display:block}
+  .main-area{padding:14px}
+  .right-panel{border-left:0;border-top:1px solid #303a43}
+  .player-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:500px){
+  .player-grid{grid-template-columns:1fr}
+  .card-back{width:55px;height:92px}
+  .card-backs{gap:7px}
+}
 </style>
+
 </head>
+
+
 <body>
-<div class="stars"></div>
 <div class="wrap">
 
   <header>
     <div>
-      <h1>Apostle Arena</h1>
-      <div class="sub">Game Master's Ledger — souls, vessels, corruption &amp; the arcana deck</div>
+      <h1>Game Master</h1>
+      <div class="sub">Apostle Arena — Game Master's Ledger</div>
     </div>
-    <div class="win-target">Ascension at<b id="soulsTarget">25 Souls</b></div>
+    <div class="win-target">Ascension target <b id="soulsTarget">25 Souls</b></div>
   </header>
 
   <div id="winnerBanner">
@@ -243,124 +588,154 @@
     <p>fulfills their SoulBind Contract. The arena falls silent.</p>
   </div>
 
-  <div class="control-strip">
-    <div class="cs-group">
-      <span class="cs-label">Apostles</span>
-      <select id="playerCountSelect">
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4" selected>4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-      </select>
-      <button id="newGameBtn" class="danger">New Game</button>
-    </div>
+  <div class="app-shell">
 
-    <div class="cs-group">
-      <span class="phase-round">Phase <span class="num" id="phaseNum">1</span> · Round <span class="num" id="roundNum">1</span><span style="color:var(--parchment-dim);">/3</span></span>
-    </div>
+    <main class="main-area">
 
-    <div class="cs-group"><span class="cap-chip" id="capChip">5 CAP / turn</span></div>
-    <div class="cs-group"><span class="deck-chip" id="deckChip">Deck: 0 / 0 remaining</span></div>
+      <div class="section-label">Players</div>
+      <div class="player-grid" id="playerGrid"></div>
 
-    <div class="cs-group">
-      <span class="cs-label">Rotation</span>
-      <button id="rotCW" class="ghost">↻ CW</button>
-      <button id="rotCCW" class="ghost">↺ CCW</button>
-    </div>
-
-    <div class="spacer"></div>
-
-    <div class="cs-group">
-      <button id="drawBtn">Draw 1 (active)</button>
-      <button id="endTurnBtn" class="primary">End Turn →</button>
-    </div>
-  </div>
-
-  <div class="player-grid" id="playerGrid"></div>
-
-  <div class="panel-block">
-    <h3>Attack Resolver <span style="color:var(--parchment-dim); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:13px;">— hex grid: check every adjacent Apostle actually being struck</span></h3>
-    <div class="resolver-row">
-      <div class="field">
-        <label>Attacker</label>
-        <select id="attackerSelect"></select>
-      </div>
-      <div class="field" style="flex:1 1 320px;">
-        <label>Targets (adjacent) <span style="opacity:.6;">— DEF shown per Apostle, damage auto-suggested</span></label>
-        <div id="targetList" class="target-list"></div>
-      </div>
-      <div class="field">
-        <label>&nbsp;</label>
-        <button id="resolveBtn" class="primary">Resolve Attack</button>
-      </div>
-    </div>
-    <div id="resolveLog"></div>
-  </div>
-
-  <div class="panel-block" id="deckPanel">
-    <h3>Arcana Deck <span style="color:var(--parchment-dim); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:13px;">— ⚡ Quick Play applies a card instantly to the active Apostle; cards needing a target or a choice open a small console first</span></h3>
-
-    <div class="panel-block" id="playConsole" style="display:none; margin-bottom:16px;">
-      <div class="pc-title" id="pcTitle"></div>
-      <div class="pc-effect" id="pcEffect"></div>
-      <div class="resolver-row">
-        <div class="field">
-          <label>Played by</label>
-          <select id="pcActor"></select>
+      <div class="panel-block">
+        <h3>Attack Resolver <span style="color:var(--muted); font-family:Inter,sans-serif; font-size:9px; font-weight:400;">— select the attacker and adjacent targets</span></h3>
+        <div class="resolver-row">
+          <div class="field">
+            <label>Attacker</label>
+            <select id="attackerSelect"></select>
+          </div>
+          <div class="field" style="flex:1 1 320px;">
+            <label>Targets <span style="opacity:.6;">— DEF shown / damage suggested</span></label>
+            <div id="targetList" class="target-list"></div>
+          </div>
+          <div class="field">
+            <label>&nbsp;</label>
+            <button id="resolveBtn" class="primary">Resolve Attack</button>
+          </div>
         </div>
-        <div class="field" id="pcTargetField">
-          <label>Target</label>
-          <select id="pcTarget"></select>
-        </div>
-        <div class="field">
-          <label>&nbsp;</label>
-          <button id="pcConfirm" class="primary">Play Card</button>
-        </div>
-        <div class="field">
-          <label>&nbsp;</label>
-          <button id="pcCancel" class="ghost">Cancel</button>
-        </div>
+        <div id="resolveLog"></div>
       </div>
-      <div class="pc-extra" id="pcExtra"></div>
-    </div>
 
-    <div class="deck-groups" id="deckGroups"></div>
+      <div class="panel-block" id="deckPanel">
+        <h3>Arcana Deck <span style="color:var(--muted); font-family:Inter,sans-serif; font-size:9px; font-weight:400;">— play cards and manage remaining copies</span></h3>
 
-    <div class="add-card-form">
-      <div class="field">
-        <label>Element</label>
-        <select id="newCardElement">
-          <option value="Radiance">Radiance</option>
-          <option value="Celeste">Celeste</option>
-          <option value="Crimson">Crimson</option>
-          <option value="Nocturne">Nocturne</option>
-        </select>
+        <div class="panel-block" id="playConsole" style="display:none; margin:0 0 12px;">
+          <div class="pc-title" id="pcTitle"></div>
+          <div class="pc-effect" id="pcEffect"></div>
+          <div class="resolver-row">
+            <div class="field">
+              <label>Played by</label>
+              <select id="pcActor"></select>
+            </div>
+            <div class="field" id="pcTargetField">
+              <label>Target</label>
+              <select id="pcTarget"></select>
+            </div>
+            <div class="field">
+              <label>&nbsp;</label>
+              <button id="pcConfirm" class="primary">Play Card</button>
+            </div>
+            <div class="field">
+              <label>&nbsp;</label>
+              <button id="pcCancel" class="ghost">Cancel</button>
+            </div>
+          </div>
+          <div class="pc-extra" id="pcExtra"></div>
+        </div>
+
+        <div class="deck-groups" id="deckGroups"></div>
+
+        <div class="add-card-form">
+          <div class="field">
+            <label>Element</label>
+            <select id="newCardElement">
+              <option value="Radiance">Radiance</option>
+              <option value="Celeste">Celeste</option>
+              <option value="Crimson">Crimson</option>
+              <option value="Nocturne">Nocturne</option>
+            </select>
+          </div>
+          <div class="field wide">
+            <label>Card name</label>
+            <input type="text" id="newCardName" placeholder="e.g. The Tower">
+          </div>
+          <div class="field wide">
+            <label>Effect text</label>
+            <input type="text" id="newCardEffect" placeholder="Short effect description">
+          </div>
+          <div class="field"><label>ATK</label><input type="number" id="newCardAtk" value="0"></div>
+          <div class="field"><label>DEF</label><input type="number" id="newCardDef" value="0"></div>
+          <div class="field"><label>CAP</label><input type="number" id="newCardCap" value="1"></div>
+          <div class="field"><label>Count</label><input type="number" id="newCardCount" value="1"></div>
+          <div class="field"><label>&nbsp;</label><button id="addCardBtn">Add Card</button></div>
+        </div>
       </div>
-      <div class="field wide">
-        <label>Card name</label>
-        <input type="text" id="newCardName" placeholder="e.g. The Tower">
-      </div>
-      <div class="field wide">
-        <label>Effect text</label>
-        <input type="text" id="newCardEffect" placeholder="Short effect description">
-      </div>
-      <div class="field"><label>ATK</label><input type="number" id="newCardAtk" value="0"></div>
-      <div class="field"><label>DEF</label><input type="number" id="newCardDef" value="0"></div>
-      <div class="field"><label>CAP</label><input type="number" id="newCardCap" value="1"></div>
-      <div class="field"><label>Count</label><input type="number" id="newCardCount" value="1"></div>
-      <div class="field"><label>&nbsp;</label><button id="addCardBtn">Add Card</button></div>
-    </div>
+
+      <button id="cycleDeckBtn">↺ Cycle Deck (reshuffle all counts)</button>
+
+      <footer>Corruption threshold 5 · Hand size of 8+ at round end gives +1 Corruption · Movement costs 2 CAP · Deck totals 52 (Celeste 11 · Crimson 16 · Nocturne 11 · Radiance 14) · Celeste's individual counts were unspecified in the source sheet — 11 was split evenly as a placeholder, edit the Remaining fields freely to match your physical deck.</footer>
+    </main>
+
+    <aside class="right-panel">
+
+      <section class="right-section">
+        <div class="right-title">Current Phase</div>
+        <div class="phase-box">
+          <span class="phase-symbol">▷</span>
+          <span>Phase <b id="phaseNum">1</b> · Round <b id="roundNum">1</b>/3</span>
+        </div>
+      </section>
+
+      <section class="right-section">
+        <div class="right-title">Actions</div>
+        <div class="action-stack">
+          <button id="drawBtn">Draw Card</button>
+          <button id="endTurnBtn" class="primary">End Turn</button>
+        </div>
+      </section>
+
+      <section class="right-section">
+        <div class="right-title">Game Info</div>
+        <div class="game-info">
+          <div class="info-row"><span>CAP / Turn</span><b id="capChip">5</b></div>
+          <div class="info-row"><span>Deck</span><b id="deckChip">0 / 0</b></div>
+          <div class="info-row"><span>Players</span><b id="playerCountLabel">4</b></div>
+          <div class="info-row"><span>Ascension</span><b id="rightSoulsTarget">25 Souls</b></div>
+        </div>
+      </section>
+
+      <section class="right-section">
+        <div class="right-title">Game Setup</div>
+        <div class="settings-row">
+          <div class="field">
+            <label>Players</label>
+            <select id="playerCountSelect">
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4" selected>4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>&nbsp;</label>
+            <button id="newGameBtn" class="danger">New Game</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="right-section">
+        <div class="right-title">Rotation</div>
+        <div class="rotation-row">
+          <button id="rotCCW">↺ CCW</button>
+          <button id="rotCW">↻ CW</button>
+        </div>
+      </section>
+
+    </aside>
   </div>
-
-  <div class="btn-row" style="margin-bottom:24px;">
-    <button id="cycleDeckBtn">↺ Cycle Deck (reshuffle all counts)</button>
-  </div>
-
-  <footer>Corruption threshold 5 · Hand size of 8+ at round end gives +1 Corruption · Movement costs 2 CAP · Deck totals 52 (Celeste 11 · Crimson 16 · Nocturne 11 · Radiance 14) · Celeste's individual counts were unspecified in the source sheet — 11 was split evenly as a placeholder, edit the Remaining fields freely to match your physical deck.</footer>
 </div>
 
 <script>
+
 const STARTING_SOULS = {2:13, 3:9, 4:7, 5:6, 6:5};
 const SOULS_TO_WIN = 25;
 const MAX_VESSEL = 50;
@@ -1237,6 +1612,7 @@ document.getElementById('addCardBtn').addEventListener('click', () => {
 });
 
 newGame(4);
+
 </script>
 </body>
 </html>
