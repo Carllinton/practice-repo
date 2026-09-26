@@ -439,8 +439,8 @@ const CARD_CATALOG = [
   {id:'magician', element:'Radiance', name:'The Magician', effect:'Current Attack will have +1 ATK', atk:2, def:1, cap:1, count:3, effectType:'flatATKBonus', params:{amount:1}},
   {id:'empress', element:'Radiance', name:'The Empress', effect:'Reduces Corruption by 2 and heals Vessels by 1', atk:0, def:3, cap:3, count:5, effectType:'healAndReduceCorruption', params:{heal:1, corr:2}},
   {id:'lovers', element:'Radiance', name:'The Lovers', effect:'Can be used to combo with another Lovers Card to increase ATK by 2', atk:4, def:4, cap:4, count:3, effectType:'pairBonus', params:{lovers:2}},
-  {id:'sun', element:'Radiance', name:'The Sun', effect:'Reduce Corruption by 1, and heal Vessels by 2', atk:10, def:4, cap:6, count:2, effectType:'healAndReduceCorruption', params:{heal:2, corr:1}},
-  {id:'judgement', element:'Radiance', name:'Judgement', effect:'Increase current DEF by 2 for this round, and heals Vessel by 1', atk:2, def:4, cap:3, count:1, effectType:'defBuffHeal', params:{def:2, heal:1}},
+  {id:'sun', element:'Radiance', name:'The Sun', effect:'Reduce Corruption by 1, and heal Vessels by 2', atk:10, def:4, cap:6, count:1, effectType:'healAndReduceCorruption', params:{heal:2, corr:1}},
+  {id:'judgement', element:'Radiance', name:'Judgement', effect:'Increase current DEF by 2 for this round, and heals Vessel by 1', atk:2, def:4, cap:3, count:3, effectType:'defBuffHeal', params:{def:2, heal:1}},
 ];
 
 const NEEDS_TARGET = new Set(['swap','corruptOpponentAndSelf','executeIfLowVessel','conditionalDefBreakCorrupt','conditionalCorruptionMultiplyATK']);
