@@ -8,565 +8,147 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Cinzel:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-:root{
-  --black:#1b1516;
-  --navy:#222a33;
-  --slate:#3c424a;
-  --red:#991719;
-  --red-bright:#d33a3d;
-  --white:#eeeeee;
-  --muted:#9ba2aa;
-  --line:#35404b;
-  --panel:#18212a;
-  --panel-2:#202b35;
-  --panel-3:#26333e;
-}
-
+:root{--black:#120e0f;--bg:#0d141b;--red:#991719;--red-bright:#e0484b;--white:#eef0f2;--muted:#94a0ab;--line:#2e3b47;
+--panel:#16202a;--panel-2:#1e2a35;--panel-3:#263542;--cel:#9bb7d4;--cri:#e0787a;--noc:#b79ddb;--rad:#dcb573;}
 *{box-sizing:border-box}
-
-html,body{
-  margin:0;
-  min-height:100%;
-  background:var(--black);
-  color:var(--white);
-  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-}
-
-body{min-height:100vh}
-
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--white);font-family:Inter,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.4}
+body{min-height:100vh;background:radial-gradient(1200px 500px at 30% -10%,rgba(153,23,25,.16),transparent 60%),var(--bg)}
 button,input,select{font:inherit}
-
-button{
-  cursor:pointer;
-  border:1px solid #46535f;
-  background:var(--panel-2);
-  color:var(--white);
-  border-radius:4px;
-  padding:9px 12px;
-  font-size:11px;
-  transition:.15s ease;
-}
-button:hover{background:var(--panel-3);border-color:#657482}
+button{cursor:pointer;border:1px solid #435363;background:var(--panel-2);color:var(--white);border-radius:6px;padding:9px 14px;font-size:12px;font-weight:500;transition:.15s ease}
+button:hover{background:var(--panel-3);border-color:#6a7d8e}
+button:active{transform:translateY(1px)}
 button:disabled{opacity:.35;cursor:not-allowed}
-button.primary{background:var(--red);border-color:var(--red);color:#fff}
-button.primary:hover{background:#b51d20;border-color:#b51d20}
-button.danger{color:#ef9a9a;border-color:#693537;background:transparent}
+button.primary{background:var(--red);border-color:#b8272a;color:#fff}
+button.primary:hover{background:#b51d20}
+button.danger{color:#f0a0a2;border-color:#693537;background:transparent}
 button.ghost{background:transparent}
-button.tiny{padding:5px 8px;font-size:10px}
-
-select,input[type=text],input[type=number]{
-  background:var(--panel-2);
-  color:var(--white);
-  border:1px solid #46535f;
-  border-radius:4px;
-  padding:8px 9px;
-  font-size:11px;
-}
-select:focus,input:focus{
-  outline:1px solid var(--red-bright);
-  outline-offset:1px;
-}
-
-.wrap{
-  width:100%;
-  min-height:100vh;
-  background:
-    linear-gradient(90deg,var(--black) 0 244px,#101820 244px 100%);
-}
-
-/* HEADER */
-header{
-  height:94px;
-  padding:0 34px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  border-bottom:1px solid #313941;
-  background:var(--black);
-}
-
-header > div:first-child{
-  display:flex;
-  align-items:center;
-  gap:20px;
-}
-
-header > div:first-child::before{
-  content:"♛";
-  width:52px;
-  height:52px;
-  display:grid;
-  place-items:center;
-  color:var(--white);
-  font-size:30px;
-  border-right:1px solid #6d7278;
-  padding-right:18px;
-}
-
-header h1{
-  margin:0;
-  color:var(--white);
-  font-size:20px;
-  font-weight:500;
-  letter-spacing:.28em;
-  text-transform:uppercase;
-}
-
+button.tiny{padding:6px 10px;font-size:11px}
+select,input[type=text],input[type=number]{background:var(--panel-2);color:var(--white);border:1px solid #435363;border-radius:6px;padding:9px 10px;font-size:13px}
+select:focus,input:focus,button:focus-visible{outline:2px solid var(--red-bright);outline-offset:1px}
+.wrap{min-height:100vh}
+header{position:sticky;top:0;z-index:20;height:76px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:rgba(18,14,15,.92);backdrop-filter:blur(8px)}
+header>div:first-child{display:flex;align-items:center;gap:18px}
+header img{height:44px;width:auto}
+.header-separator{color:var(--muted);font-size:24px;opacity:.5}
+header h1{margin:0;font-family:Cinzel,serif;font-size:20px;font-weight:700;letter-spacing:.24em;text-transform:uppercase}
 header .sub{display:none}
-
-.win-target{
-  color:var(--muted);
-  font-size:11px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-.win-target b{
-  color:var(--white);
-  font-size:12px;
-  font-weight:600;
-  margin:0;
-}
-
-/* WINNER */
-#winnerBanner{
-  display:none;
-  margin:16px 20px 0 264px;
-  padding:12px 16px;
-  background:var(--panel);
-  border:1px solid var(--red);
-}
-#winnerBanner h2{font-size:14px}
-#winnerBanner p{margin:3px 0 0;color:var(--muted);font-size:11px}
-
-/* APP GRID */
-.app-shell{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) 316px;
-  min-height:calc(100vh - 94px);
-}
-
-/* MAIN */
-.main-area{
-  min-width:0;
-  background:#101820;
-  padding:22px;
-}
-
-.section-label{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  color:#c8d0d8;
-  font-size:11px;
-  font-weight:600;
-  text-transform:uppercase;
-  letter-spacing:.16em;
-  margin-bottom:14px;
-}
-.section-label::before{
-  content:"";
-  width:4px;
-  height:20px;
-  background:var(--red-bright);
-  display:block;
-}
-
-.player-grid{
-  margin:0;
-  padding:0;
-  display:grid;
-  grid-template-columns:repeat(4,minmax(130px,1fr));
-  gap:14px;
-}
-
-.player-card{
-  min-height:154px;
-  background:linear-gradient(145deg,#1c2832,#17212a);
-  border:1px solid #394955;
-  border-radius:4px;
-  padding:18px;
-  position:relative;
-}
-.player-card.active{
-  border-color:var(--red-bright);
-  box-shadow:inset 0 -2px 0 var(--red-bright);
-}
-.player-card.desperate{border-color:#9a4b4d}
-.player-card:has(.tag.warn){
-  border-color:#7c4042;
-}
-
-.player-card.corrupted .name-row .name{color:#ed7476}
-
-.name-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-  margin-bottom:18px;
-}
-
-.name-row input.name{
-  width:100%;
-  padding:2px 0;
-  background:transparent;
-  border:0;
-  color:var(--white);
-  font-size:12px;
-  font-weight:600;
-}
+.win-target{color:var(--muted);font-size:12px;display:flex;align-items:center;gap:10px;padding:8px 14px;border:1px solid var(--line);border-radius:999px;background:var(--panel)}
+.win-target b{color:var(--rad);font-family:Cinzel,serif;font-size:14px}
+#winnerBanner{display:none;margin:16px 22px 0;padding:16px 20px;background:linear-gradient(90deg,rgba(153,23,25,.35),var(--panel));border:1px solid var(--red-bright);border-radius:8px}
+#winnerBanner h2{font-family:Cinzel,serif;font-size:18px;margin:0}
+#winnerBanner p{margin:4px 0 0;color:var(--muted)}
+.app-shell{display:grid;grid-template-columns:minmax(0,1fr) 340px;align-items:start}
+.main-area{min-width:0;padding:24px 22px 32px}
+.section-label,.right-title{display:flex;align-items:center;gap:10px;color:#cfd7de;font-family:Cinzel,serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px}
+.section-label::before,.right-title::before{content:"";width:3px;height:18px;background:var(--red-bright);border-radius:2px}
+.player-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+.player-card{background:linear-gradient(160deg,#1c2833,#151e27);border:1px solid #33424f;border-radius:10px;padding:18px;position:relative;transition:.2s}
+.player-card.active{border-color:var(--red-bright);box-shadow:0 0 0 1px var(--red-bright),0 8px 28px rgba(224,72,75,.18)}
+.player-card.active::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--red-bright);border-radius:10px 10px 0 0}
+.player-card.corrupted{border-color:#7c4042}
+.player-card.corrupted .name-row .name{color:#ee8284}
+.player-card.critical{border-color:var(--red-bright);box-shadow:0 0 18px rgba(211,58,61,.25)}
+.name-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px}
+.name-row input.name{width:100%;padding:2px 0;background:transparent;border:0;color:var(--white);font-family:Cinzel,serif;font-size:16px;font-weight:700;letter-spacing:.06em}
 .name-row input.name:focus{outline:none;border-bottom:1px solid #65717c}
-
-.badge-active{
-  display:none;
-  background:var(--red);
-  color:#fff;
-  padding:4px 6px;
-  font-size:8px;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-}
+.badge-active{display:none;background:var(--red);color:#fff;padding:4px 9px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
 .player-card.active .badge-active{display:inline-block}
-
-.stat-block{margin:10px 0}
-.stat-label{
-  display:flex;
-  justify-content:space-between;
-  color:#89939d;
-  font-size:9px;
-  text-transform:uppercase;
-  letter-spacing:.08em;
-  margin-bottom:6px;
-}
-.stat-label .val{
-  color:var(--white);
-  font-size:10px;
-}
-
-.bar-track{
-  height:6px;
-  background:#11171d;
-  border:1px solid #303a43;
-  overflow:hidden;
-}
-.bar-fill{height:100%;transition:width .25s}
-.bar-fill.vessel{background:#7e8993}
-.bar-fill.souls{background:#c5ccd2}
-
-.stepper{display:flex;align-items:center;gap:3px}
-.stepper button{padding:3px 7px;font-size:9px}
-.stepper .amt{
-  width:38px;
-  text-align:center;
-  background:transparent;
-  border:0;
-  color:var(--white);
-  font-size:10px;
-}
-
-.corruption-pips{display:flex;gap:3px;margin-top:5px}
-.pip{height:5px;flex:1;background:#222b34;border:1px solid #3c4853}
-.pip.lit{background:var(--red);border-color:#d25b5e}
+.stat-block{margin:12px 0}
+.stat-label{display:flex;justify-content:space-between;align-items:baseline;color:var(--muted);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.stat-label .val{color:var(--white);font-size:13px;letter-spacing:0}
+.bar-track{height:8px;background:#0e151b;border:1px solid #2b3945;border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;transition:width .3s}
+.bar-fill.vessel{background:linear-gradient(90deg,#7a2a2c,#d05a5c)}
+.bar-fill.souls{background:linear-gradient(90deg,#8a7040,var(--rad))}
+.stepper{display:flex;align-items:center;gap:4px}
+.stepper button{padding:5px 9px;font-size:11px;min-width:34px}
+.stepper .amt{width:48px;text-align:center;background:transparent;border:0;color:var(--white);font-size:13px;font-weight:600;padding:4px}
+.hand-row .stepper .amt{width:38px}
+.corruption-pips{display:flex;gap:4px}
+.pip{height:8px;flex:1;background:#1b252e;border:1px solid #3a4854;border-radius:2px}
+.pip.lit{background:var(--red-bright);border-color:#f08c8e;box-shadow:0 0 8px rgba(224,72,75,.5)}
 .pip.threshold{border-color:#7a838b}
-
-.status-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px;min-height:15px}
-.tag{
-  padding:3px 5px;
-  font-size:8px;
-  color:#e37b7d;
-  border:1px solid #7c4042;
-  text-transform:uppercase;
-}
-.tag.warn{color:#e37b7d;border-color:#7c4042;background:rgba(153,23,25,.12)}
+.status-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;min-height:20px}
+.tag{padding:4px 8px;border-radius:999px;font-size:10px;color:#ee8284;border:1px solid #7c4042;background:rgba(153,23,25,.12)}
 .tag.shield{color:#9ab4d0;border-color:#4d647c}
-.tag.buff{color:#bca5db;border-color:#65557b}
-.tag.freeze{color:#9db8d9;border-color:#526a84}
-
-.combat-mini{display:flex;gap:4px;margin-top:8px}
-.combat-mini div{
-  flex:1;
-  text-align:center;
-  background:#19232c;
-  border:1px solid #2e3a45;
-  padding:5px;
-}
-.combat-mini div b{display:block;font-size:11px}
-.combat-mini div span{
-  color:#7f8992;
-  font-size:8px;
-  text-transform:uppercase;
-}
-
-.hand-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-top:8px;
-}
-.hand-row .stepper .amt{width:28px}
-
-.mini-actions{
-  display:flex;
-  gap:4px;
-  margin-top:10px;
-  padding-top:9px;
-  border-top:1px solid #2a353e;
-}
-.mini-actions button{flex:1;padding:5px 4px;font-size:8px}
-
-/* EXISTING FUNCTIONAL PANELS */
-.panel-block{
-  background:var(--panel);
-  border:1px solid #35434f;
-  border-radius:4px;
-  padding:16px;
-  margin:20px 0 0;
-}
-.panel-block h3{
-  color:#d4dbe1;
-  font-size:11px;
-  font-weight:600;
-  letter-spacing:.14em;
-  text-transform:uppercase;
-  margin:0 0 13px;
-}
-.resolver-row{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  align-items:flex-end;
-}
+.tag.buff{color:#c6b0e4;border-color:#65557b;background:rgba(101,85,123,.15)}
+.tag.freeze{color:#9db8d9;border-color:#526a84;background:rgba(82,106,132,.15)}
+.combat-mini{display:flex;gap:8px;margin:12px 0}
+.combat-mini div{flex:1;text-align:center;background:#111a22;border:1px solid #2b3945;border-radius:8px;padding:8px}
+.combat-mini div b{display:block;font-family:Cinzel,serif;font-size:22px}
+.combat-mini div span{color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.08em}
+.hand-row{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.mini-actions{display:flex;gap:6px;margin-top:14px;padding-top:12px;border-top:1px solid #2a3641}
+.mini-actions button{flex:1;padding:7px 4px;font-size:10px}
+.panel-block{background:var(--panel);border:1px solid #2f3e4a;border-radius:10px;padding:18px;margin:22px 0 0}
+.panel-block h3{font-family:Cinzel,serif;color:#dbe2e8;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin:0 0 14px}
+.panel-block h3 span{letter-spacing:0;text-transform:none}
+.resolver-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
 .field{display:flex;flex-direction:column;gap:5px}
-.field label{
-  color:#85919b;
-  font-size:8px;
-  text-transform:uppercase;
-  letter-spacing:.1em;
-}
+.field label{color:var(--muted);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em}
 .field select,.field input{min-width:120px}
-
-.target-list{
-  min-width:280px;
-  background:#19232c;
-  border:1px solid #35434f;
-  padding:7px;
-}
-.target-row{display:flex;align-items:center;gap:7px}
-.target-row .target-check{flex:1;font-size:10px}
-.target-row .target-def{color:#89959f;font-size:9px}
-.target-row .target-dmg{width:52px}
+.target-list{min-width:280px;background:#111a22;border:1px solid #2f3e4a;border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:4px}
+.target-row{display:flex;align-items:center;gap:10px;padding:5px 6px;border-radius:6px;font-size:13px}
+.target-row:hover{background:#18232d}
+.target-row .target-check{flex:1}
+.target-row .target-def{color:var(--muted);font-size:11px}
+.target-row .target-dmg{width:64px;padding:6px}
 .target-row.disabled{opacity:.35}
-
-#resolveLog{
-  margin-top:11px;
-  padding-top:9px;
-  border-top:1px solid #2c3741;
-  color:#8c97a1;
-  font-size:10px;
-  max-height:130px;
-  overflow-y:auto;
-}
-#resolveLog div{margin-bottom:4px}
-#resolveLog div.log-win{color:#e8edf1}
-#resolveLog div.log-corrupt{color:#df7275}
-#resolveLog div.log-card{color:#aab5be}
-
-/* DECK */
-#deckPanel{margin-top:20px}
-.deck-groups{display:flex;flex-direction:column;gap:7px}
-.deck-group summary{
-  cursor:pointer;
-  list-style:none;
-  display:flex;
-  justify-content:space-between;
-  padding:9px 11px;
-  background:#1d2832;
-  border:1px solid #35434f;
-  color:#d6dde3;
-  font-size:10px;
-  font-weight:600;
-}
+#resolveLog{color:#9aa6b0;font-size:12px;max-height:360px;overflow-y:auto;padding-right:4px}
+#resolveLog div{margin-bottom:6px;padding:7px 9px;border-left:2px solid #2f3e4a;background:rgba(255,255,255,.02);border-radius:0 4px 4px 0}
+#resolveLog div.log-win{color:#fff;border-left-color:var(--rad)}
+#resolveLog div.log-corrupt{color:#ee8284;border-left-color:var(--red-bright)}
+#resolveLog div.log-card{color:#b6c1ca;border-left-color:#5f7387}
+.deck-groups{display:flex;flex-direction:column;gap:8px}
+.deck-group summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:12px;padding:11px 14px;background:#1a2530;border:1px solid #2f3e4a;border-left:3px solid var(--c,#666);border-radius:8px;color:#e1e7ec;font-family:Cinzel,serif;font-size:13px;font-weight:700;letter-spacing:.08em}
 .deck-group summary::-webkit-details-marker{display:none}
-.deck-group .count-tag{color:#818d97;font-size:9px}
-table.cardtable{
-  width:100%;
-  border-collapse:collapse;
-  border:1px solid #35434f;
-  border-top:0;
-  font-size:9px;
-}
-table.cardtable th{
-  padding:7px 9px;
-  text-align:left;
-  color:#7f8b95;
-  font-size:8px;
-  text-transform:uppercase;
-  letter-spacing:.07em;
-  border-bottom:1px solid #2c3842;
-}
-table.cardtable td{
-  padding:7px 9px;
-  border-bottom:1px solid #27323c;
-}
-table.cardtable tr:last-child td{border-bottom:0}
-table.cardtable td.cardname{font-weight:600;white-space:nowrap}
-table.cardtable td.stats{color:#aeb8c0}
-table.cardtable td.remain{text-align:center}
-table.cardtable td.remain input{width:42px;text-align:center;padding:5px}
+.deck-group summary::after{content:"▾";margin-left:8px;color:var(--muted);transition:.2s}
+.deck-group[open] summary::after{transform:rotate(180deg)}
+.deck-group .count-tag{margin-left:auto;color:var(--muted);font-family:Inter,sans-serif;font-size:11px;font-weight:500;letter-spacing:0}
+.emb{width:28px;height:28px;background:center/contain no-repeat}
+.emb-Celeste{background-image:url("Soulbind_Assets/ELEMENT EMBLEM/cel_sm.png")}
+.emb-Crimson{background-image:url("Soulbind_Assets/ELEMENT EMBLEM/cri_sm.png")}
+.emb-Nocturne{background-image:url("Soulbind_Assets/ELEMENT EMBLEM/noc_sm.png")}
+.emb-Radiance{background-image:url("Soulbind_Assets/ELEMENT EMBLEM/rad_sm.png")}
+.deck-group.el-Celeste{--c:var(--cel)}.deck-group.el-Crimson{--c:var(--cri)}.deck-group.el-Nocturne{--c:var(--noc)}.deck-group.el-Radiance{--c:var(--rad)}
+table.cardtable{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px}
+table.cardtable th{padding:9px 10px;text-align:left;color:#7f8b95;font-size:10px;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #2c3842}
+table.cardtable td{padding:10px;border-bottom:1px solid #222e38;vertical-align:middle}
+table.cardtable tr:hover td{background:rgba(255,255,255,.02)}
+table.cardtable td.cardname{font-weight:700;white-space:nowrap;font-size:13px}
+table.cardtable td.stats{color:#b0bac2;white-space:nowrap}
+table.cardtable td.remain{text-align:center;color:var(--muted);font-size:10px}
+table.cardtable td.remain input{width:54px;text-align:center;padding:6px}
 table.cardtable td.playcell{white-space:nowrap}
-
-.el-celeste{color:#9bb7d4}
-.el-crimson{color:#d97779}
-.el-nocturne{color:#b39bd1}
-.el-radiance{color:#d3ad70}
-
-#playConsole{
-  border-color:#53606b;
-  background:#19232c;
-}
-#playConsole .pc-title{font-size:11px;color:#e4e9ed}
-#playConsole .pc-effect{font-size:10px;color:#8c98a2}
-.pc-extra{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;font-size:9px;color:#8c98a2}
-
-.add-card-form{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  align-items:flex-end;
-  margin-top:11px;
-  padding-top:11px;
-  border-top:1px dashed #34404a;
-}
+.el-celeste{color:var(--cel)}.el-crimson{color:var(--cri)}.el-nocturne{color:var(--noc)}.el-radiance{color:var(--rad)}
+#playConsole{border-color:var(--red);background:#1a2530}
+#playConsole .pc-title{font-family:Cinzel,serif;font-size:15px;color:#fff;margin-bottom:4px}
+#playConsole .pc-effect{font-size:12px;color:var(--muted);margin-bottom:12px}
+.pc-extra{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:#b0bac2}
+.add-card-form{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:16px;padding-top:16px;border-top:1px dashed #34404a}
 .add-card-form .field.wide input{min-width:180px}
-
-#cycleDeckBtn{margin:20px 0 0}
-footer{
-  margin:22px 0 0;
-  padding-bottom:24px;
-  color:#68737d;
-  font-size:9px;
-  line-height:1.5;
-}
-
-/* RIGHT CONTROL PANEL */
-.right-panel{
-  background:#151d25;
-  border-left:1px solid #303a43;
-  padding:22px 18px;
-}
-
-.right-section{
-  padding:0 0 18px;
-  margin-bottom:18px;
-  border-bottom:1px solid #33404a;
-}
+.add-card-form input[type=number]{min-width:0;width:70px}
+#cycleDeckBtn{margin:22px 0 0}
+footer{margin:24px 0 0;color:#6c7883;font-size:11px;line-height:1.6}
+.right-panel{position:sticky;top:76px;height:calc(100vh - 76px);overflow-y:auto;background:#111922;border-left:1px solid var(--line);padding:22px 20px}
+.right-section{padding:0 0 18px;margin-bottom:18px;border-bottom:1px solid #26333e}
 .right-section:last-child{border-bottom:0}
-
-.right-title{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:12px;
-  color:#d4dce3;
-  font-size:10px;
-  font-weight:600;
-  letter-spacing:.16em;
-  text-transform:uppercase;
-}
-.right-title::before{
-  content:"";
-  width:4px;
-  height:20px;
-  background:var(--red-bright);
-}
-
-.phase-box{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  width:100%;
-  padding:12px;
-  background:#202b35;
-  border:1px solid #41515e;
-  border-radius:4px;
-  color:#dce3e8;
-  font-size:11px;
-}
-.phase-box .phase-symbol{font-size:18px;margin-right:10px}
-.phase-box select{flex:1;background:transparent;border:0;padding:0}
-
-.action-stack{display:flex;flex-direction:column;gap:9px}
-.action-stack button{
-  width:100%;
-  height:50px;
-  display:flex;
-  align-items:center;
-  gap:13px;
-  text-align:left;
-  font-size:11px;
-}
-.action-stack button::before{
-  content:"";
-  width:18px;
-  text-align:center;
-  color:#d7e0e7;
-  font-size:16px;
-}
-#drawBtn::before{content:"▣"}
-#endTurnBtn::before{content:"○"}
-
-.game-info{display:flex;flex-direction:column}
-.info-row{
-  display:flex;
-  justify-content:space-between;
-  padding:10px 8px;
-  border-bottom:1px solid #2d3943;
-  color:#8e9aa4;
-  font-size:10px;
-}
-.info-row b{color:#e2e7eb;font-weight:600}
-
-.rotation-row{
-  display:flex;
-  gap:7px;
-}
-.rotation-row button{flex:1}
-
-.settings-row{
-  display:flex;
-  flex-wrap:wrap;
-  gap:7px;
-}
-.settings-row .field{flex:1;min-width:100px}
-
-#playConsole .resolver-row{align-items:flex-end}
-
-/* Hide toolbar from the old layout; its controls are represented in the side panel. */
-.control-strip{
-  display:none;
-}
-
-/* responsive */
-@media(max-width:1100px){
-  .app-shell{grid-template-columns:minmax(0,1fr) 280px}
-  .player-grid{grid-template-columns:repeat(2,minmax(130px,1fr))}
-}
-@media(max-width:760px){
-  header{height:72px;padding:0 16px}
-  header h1{font-size:15px}
-  header > div:first-child::before{width:38px;height:38px;font-size:22px}
-  .app-shell{display:block}
-  .main-area{padding:14px}
-  .right-panel{border-left:0;border-top:1px solid #303a43}
-  .player-grid{grid-template-columns:1fr 1fr}
-}
-@media(max-width:500px){
-  .player-grid{grid-template-columns:1fr}
-  .card-back{width:55px;height:92px}
-  .card-backs{gap:7px}
-}
+.phase-box{display:block;padding:14px;background:var(--panel-2);border:1px solid #3d4d5b;border-radius:8px;text-align:center;color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.phase-box b{display:block;font-family:Cinzel,serif;color:#fff;font-size:26px;letter-spacing:.04em;margin-top:2px}
+.phase-box .sep{display:flex;justify-content:center;gap:24px}
+.turn-order{display:flex;flex-wrap:wrap;gap:6px}
+.turn-chip{padding:6px 11px;border-radius:999px;border:1px solid #33424f;background:var(--panel);font-size:12px;color:var(--muted)}
+.turn-chip.now{background:var(--red);border-color:var(--red-bright);color:#fff;font-weight:700}
+.turn-chip.frozen{border-style:dashed;color:#9db8d9}
+.action-stack{display:flex;flex-direction:column;gap:10px}
+.action-stack button{width:100%;height:48px;font-size:13px;font-weight:600}
+.info-row{display:flex;justify-content:space-between;padding:9px 4px;border-bottom:1px solid #26333e;color:var(--muted);font-size:12px}
+.info-row b{color:#eef1f4}
+.rotation-row{display:flex;gap:8px}.rotation-row button{flex:1}
+.settings-row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}.settings-row .field{flex:1;min-width:90px}
+.control-strip{display:none}
+@media(max-width:1000px){.app-shell{display:block}.right-panel{position:static;height:auto;border-left:0;border-top:1px solid var(--line)}}
+@media(max-width:600px){header{padding:0 14px;height:64px}header h1{font-size:14px}header img{height:34px}.win-target{display:none}.main-area{padding:14px}.player-grid{grid-template-columns:1fr}table.cardtable{display:block;overflow-x:auto}}
 </style>
 
 </head>
@@ -577,10 +159,12 @@ footer{
 
   <header>
     <div>
+      <img src="Soulbind_Assets/Logos/SoulBindLogo.png" alt="SoulBind">
+      <span class="header-separator" aria-hidden="true">|</span>
       <h1>Game Master</h1>
       <div class="sub">Apostle Arena — Game Master's Ledger</div>
     </div>
-    <div class="win-target">Ascension target <b id="soulsTarget">25 Souls</b></div>
+    <div class="win-target">Ascension target <b id="soulsTarget">20 Souls</b></div>
   </header>
 
   <div id="winnerBanner">
@@ -611,7 +195,6 @@ footer{
             <button id="resolveBtn" class="primary">Resolve Attack</button>
           </div>
         </div>
-        <div id="resolveLog"></div>
       </div>
 
       <div class="panel-block" id="deckPanel">
@@ -671,17 +254,18 @@ footer{
 
       <button id="cycleDeckBtn">↺ Cycle Deck (reshuffle all counts)</button>
 
-      <footer>Corruption threshold 5 · Hand size of 8+ at round end gives +1 Corruption · Movement costs 2 CAP · Deck totals 52 (Celeste 11 · Crimson 16 · Nocturne 11 · Radiance 14) · Celeste's individual counts were unspecified in the source sheet — 11 was split evenly as a placeholder, edit the Remaining fields freely to match your physical deck.</footer>
+      <footer>Corruption 5 = soul lock + DoT −2 · Corruption 10 = DoT −4 · Hand size of 8+ at round end gives +1 Corruption · Movement costs 2 CAP · Deck totals 62 (Celeste 18 · Crimson 13 · Nocturne 16 · Radiance 15).</footer>
     </main>
 
     <aside class="right-panel">
 
       <section class="right-section">
         <div class="right-title">Current Phase</div>
-        <div class="phase-box">
-          <span class="phase-symbol">▷</span>
-          <span>Phase <b id="phaseNum">1</b> · Round <b id="roundNum">1</b>/3</span>
-        </div>
+        <div class="phase-box"><div class="sep"><div>Phase<b id="phaseNum">1</b></div><div>Round<b><span id="roundNum">1</span>/3</b></div></div></div>
+      </section>
+      <section class="right-section">
+        <div class="right-title">Turn Order</div>
+        <div class="turn-order" id="turnOrder"></div>
       </section>
 
       <section class="right-section">
@@ -698,7 +282,7 @@ footer{
           <div class="info-row"><span>CAP / Turn</span><b id="capChip">5</b></div>
           <div class="info-row"><span>Deck</span><b id="deckChip">0 / 0</b></div>
           <div class="info-row"><span>Players</span><b id="playerCountLabel">4</b></div>
-          <div class="info-row"><span>Ascension</span><b id="rightSoulsTarget">25 Souls</b></div>
+          <div class="info-row"><span>Ascension</span><b id="rightSoulsTarget">20 Souls</b></div>
         </div>
       </section>
 
@@ -729,6 +313,10 @@ footer{
           <button id="rotCW">↻ CW</button>
         </div>
       </section>
+      <section class="right-section">
+        <div class="right-title">Chronicle</div>
+        <div id="resolveLog"></div>
+      </section>
 
     </aside>
   </div>
@@ -737,7 +325,7 @@ footer{
 <script>
 
 const STARTING_SOULS = {2:13, 3:9, 4:7, 5:6, 6:5};
-const SOULS_TO_WIN = 25;
+const SOULS_TO_WIN = 20;
 const MAX_VESSEL = 50;
 
 function capForPhase(phase){
@@ -752,9 +340,6 @@ function maxCapForPlayer(p){
   return capForPhase(state.phase) + p.tempBuffs.reduce((s,b) => s + (b.cap||0), 0);
 }
 
-/* counts for Celeste were not given in the source material — reasonable defaults
-   assumed below (sum 11) so the deck totals stay close to 52; edit the count
-   fields in the Deck panel to match your physical deck exactly. */
 const CARD_CATALOG = [
   {id:'fool', element:'Celeste', name:'The Fool', effect:'Reduce Corruption by 1, but also reduce DEF by 2', atk:0, def:0, cap:0, count:6, effectType:'reduceCorruptionSelfDefPenalty', params:{corr:1, defPenalty:2}},
   {id:'hierophant', element:'Celeste', name:'The Hierophant', effect:'Temporarily increases ATK and DEF by 2 for the next round', atk:0, def:0, cap:2, count:3, effectType:'selfBuffNextRound', params:{atk:2, def:2}},
@@ -783,7 +368,7 @@ const CARD_CATALOG = [
   {id:'judgement', element:'Radiance', name:'Judgement', effect:'Increase current DEF by 2 for this round, and heals Vessel by 1', atk:2, def:4, cap:3, count:3, effectType:'defBuffHeal', params:{def:2, heal:1}},
 ];
 
-const NEEDS_TARGET = new Set(['reveal','swap','corruptOpponentAndSelf','executeIfLowVessel','conditionalDefBreakCorrupt','conditionalCorruptionCompareATK']);
+const NEEDS_TARGET = new Set(['reveal','swap','corruptOpponentAndSelf','executeIfLowVessel','conditionalDefBreakCorrupt','conditionalCorruptionCompareATK','conditionalCorruptionMultiplyATK']);
 const NEEDS_EXTRA_UI = new Set(['pairBonus','conditionalDefBreakCorrupt']);
 // Cards that need neither a target pick nor an extra choice can be resolved in a single click,
 // applied on behalf of whoever is currently the active Apostle.
@@ -830,6 +415,7 @@ function makePlayer(id){
     corruptionReduceCount: 0,
     skip: false,
     desperate: false,
+    elementCombo: {Celeste:0, Crimson:0, Nocturne:0, Radiance:0},
   };
 }
 
@@ -873,6 +459,7 @@ function newGame(count){
 
 function getPlayer(id){ return state.players.find(p => p.id === id); }
 function activePlayerId(){ return state.turnOrder[state.activeIdx]; }
+function esc(t){ return String(t).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
 function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
 
 function totalAtk(p){ return p.turnATK + p.tempBuffs.reduce((s,b) => s + (b.atk||0), 0); }
@@ -984,6 +571,9 @@ function resolveAttack(){
   render();
 }
 
+// Corruption damage over time per round end: 5+ = -2 vessel, 10+ = -4 vessel (before Desperation x2).
+function corruptionDoT(p){ return p.corruption >= 10 ? 4 : (p.corruption >= 5 ? 2 : 0); }
+
 function resolveEndOfRound(){
   state.players.forEach(p => {
     if(p.hand >= 8){
@@ -992,8 +582,9 @@ function resolveEndOfRound(){
     }
     if(p.corruption >= 5){
       const mult = p.desperate ? 2 : 1;
-      p.vessel = clamp(p.vessel - 2 * mult, 0, MAX_VESSEL);
-      log(p.name + ' suffers Corruption DoT: -' + (2*mult) + ' vessel.', 'log-corrupt');
+      const dot = corruptionDoT(p) * mult;
+      p.vessel = clamp(p.vessel - dot, 0, MAX_VESSEL);
+      log(p.name + ' suffers Corruption DoT' + (p.corruption >= 10 ? ' (critical, 10+)' : '') + ': -' + dot + ' vessel.', 'log-corrupt');
       applyDesperationCheck(p);
     }
     p.tempBuffs = p.tempBuffs.filter(b => {
@@ -1045,6 +636,7 @@ function advanceToUnfrozen(){
     next.turnDEF = 0;
     next.turnATK = 0;
     next.corruptionReduceCount = 0;
+    next.elementCombo = {Celeste:0, Crimson:0, Nocturne:0, Radiance:0};
     next.cap = maxCapForPlayer(next);
     break;
   }
@@ -1125,9 +717,36 @@ function applyCardCost(actor, card){
     log(actor.name + ' does not have enough Capacity for ' + card.name + ' — playing anyway (GM override).', 'log-corrupt');
   }
   actor.cap = clamp(actor.cap - card.cap, 0, 20);
+  actor.hand = clamp(actor.hand - 1, 0, 20);
   state.deckCounts[card.id] = Math.max(0, (state.deckCounts[card.id]||0) - 1);
   actor.turnATK += card.atk;
   actor.turnDEF += card.def;
+  return applyElementCombo(actor, card);
+}
+
+// Element synergy: playing 2 cards of the same element in one turn triggers a bonus.
+// Fires again every additional pair (4th card of that element, 6th, etc.) within the same turn.
+function applyElementCombo(actor, card){
+  if(!actor.elementCombo) actor.elementCombo = {Celeste:0, Crimson:0, Nocturne:0, Radiance:0};
+  const el = card.element;
+  actor.elementCombo[el] = (actor.elementCombo[el] || 0) + 1;
+  if(actor.elementCombo[el] % 2 !== 0) return '';
+
+  switch(el){
+    case 'Radiance':
+      actor.turnDEF += 2;
+      return ` [Radiance combo: +2 DEF]`;
+    case 'Celeste':
+      actor.corruption = clamp(actor.corruption - 1, 0, 20);
+      return ` [Celeste combo: -1 Corruption to self]`;
+    case 'Crimson':
+      actor.turnATK += 2;
+      return ` [Crimson combo: +2 ATK]`;
+    case 'Nocturne':
+      return ` [Nocturne combo: +1 Corruption to an enemy of your choice — apply manually]`;
+    default:
+      return '';
+  }
 }
 
 // extra = {pairKind, defBrokeFailed} — optional choices only relevant to a couple of card types.
@@ -1143,6 +762,10 @@ function resolveCardEffect(actor, target, card, extra){
     case 'selfBuff':
       actor.turnATK += p.atk; actor.turnDEF += p.def;
       extraMsg = `+${p.atk} ATK / +${p.def} DEF this turn.`;
+      break;
+    case 'selfBuffNextRound':
+      actor.tempBuffs.push({label:'Hierophant', atk:p.atk, def:p.def, remaining:1, kind:'ownTurns'});
+      extraMsg = `+${p.atk} ATK / +${p.def} DEF, active now through your next turn.`;
       break;
     case 'swap':
       extraMsg = target ? `Swap a random card with ${target.name} (adjust hands manually).` : '';
@@ -1270,6 +893,24 @@ function resolveCardEffect(actor, target, card, extra){
         extraMsg = `Condition not met — no bonus applied.`;
       }
       break;
+    case 'conditionalCorruptionMultiplyATK':
+      if(target && target.corruption > actor.corruption){
+        actor.turnATK *= 2;
+        extraMsg = `${target.name}'s corruption is higher — ATK doubled.`;
+      } else {
+        extraMsg = `Condition not met — no bonus applied.`;
+      }
+      break;
+    case 'defBuffHeal':
+      actor.turnDEF += p.def;
+      actor.vessel = clamp(actor.vessel + p.heal, 0, MAX_VESSEL);
+      extraMsg = `+${p.def} DEF this round, Vessel +${p.heal}.`;
+      break;
+    case 'reduceCorruptionSelfDefPenalty':
+      actor.corruption = clamp(actor.corruption - p.corr, 0, 20);
+      actor.turnDEF -= p.defPenalty;
+      extraMsg = `Corruption -${p.corr}, DEF -${p.defPenalty} this turn.`;
+      break;
   }
 
   return extraMsg;
@@ -1305,8 +946,8 @@ function quickPlayCard(cardId){
 
   const actor = getPlayer(activePlayerId());
   if(!actor) return;
-  applyCardCost(actor, card);
-  const extraMsg = resolveCardEffect(actor, null, card, {});
+  const comboMsg = applyCardCost(actor, card);
+  const extraMsg = resolveCardEffect(actor, null, card, {}) + comboMsg;
   finishPlayingCard(actor, null, card, extraMsg);
 }
 
@@ -1328,8 +969,8 @@ function confirmPlayCard(){
     extra.defBrokeFailed = cb ? cb.checked : true;
   }
 
-  applyCardCost(actor, card);
-  const extraMsg = resolveCardEffect(actor, target, card, extra);
+  const comboMsg = applyCardCost(actor, card);
+  const extraMsg = resolveCardEffect(actor, target, card, extra) + comboMsg;
   closePlayConsole();
   finishPlayingCard(actor, target, card, extraMsg);
 }
@@ -1350,13 +991,15 @@ function elClass(el){
 function render(){
   document.getElementById('phaseNum').textContent = state.phase;
   document.getElementById('roundNum').textContent = state.round;
-  document.getElementById('capChip').textContent = capForPhase(state.phase) + ' CAP / turn';
+  document.getElementById('capChip').textContent = capForPhase(state.phase);
+  document.getElementById('soulsTarget').textContent = SOULS_TO_WIN + ' Souls';
+  document.getElementById('rightSoulsTarget').textContent = SOULS_TO_WIN + ' Souls';
   document.getElementById('rotCW').classList.toggle('primary', state.rotation === 'cw');
   document.getElementById('rotCCW').classList.toggle('primary', state.rotation === 'ccw');
 
   const totalRemaining = Object.values(state.deckCounts).reduce((s,v)=>s+v,0);
   const totalDeck = allCards().reduce((s,c)=>s+c.count,0);
-  document.getElementById('deckChip').textContent = 'Deck: ' + totalRemaining + ' / ' + totalDeck + ' remaining';
+  document.getElementById('deckChip').textContent = totalRemaining + ' / ' + totalDeck;
 
   const grid = document.getElementById('playerGrid');
   grid.innerHTML = '';
@@ -1365,18 +1008,20 @@ function render(){
   state.players.forEach(p => {
     const isActive = p.id === activeId && !state.winnerId;
     const card = document.createElement('div');
-    card.className = 'player-card' + (isActive ? ' active' : '') + (p.corruption >= 5 ? ' corrupted' : '') + (p.desperate ? ' desperate' : '');
+    card.className = 'player-card' + (isActive ? ' active' : '') + (p.corruption >= 5 ? ' corrupted' : '') + (p.corruption >= 10 ? ' critical' : '') + (p.desperate ? ' desperate' : '');
 
     const vesselPct = clamp((p.vessel / MAX_VESSEL) * 100, 0, 100);
     const soulsPct = clamp((p.souls / SOULS_TO_WIN) * 100, 0, 100);
 
     let pips = '';
-    for(let i = 1; i <= 5; i++){
-      pips += '<div class="pip ' + (p.corruption >= i ? 'lit ' : '') + (i === 5 ? 'threshold' : '') + '"></div>';
+    for(let i = 1; i <= 10; i++){
+      pips += '<div class="pip ' + (p.corruption >= i ? 'lit ' : '') + ((i === 5 || i === 10) ? 'threshold' : '') + '"></div>';
     }
 
     let tags = '';
-    if(p.corruption >= 5) tags += '<span class="tag">Corrupted — soul lock</span>';
+    if(p.corruption >= 10) tags += '<span class="tag">Critical — DoT −' + (4 * (p.desperate ? 2 : 1)) + ' / round</span>';
+    else if(p.corruption >= 5) tags += '<span class="tag">Corrupted — DoT −' + (2 * (p.desperate ? 2 : 1)) + ' / round</span>';
+    if(p.corruption >= 5) tags += '<span class="tag">Soul lock</span>';
     if(p.hand >= 8) tags += '<span class="tag warn">Hand overflow — +1 Corruption at round end</span>';
     if(p.desperate) tags += '<span class="tag">Desperate ×2</span>';
     if(p.skip) tags += '<span class="tag freeze">Frozen — skips next</span>';
@@ -1390,8 +1035,8 @@ function render(){
 
     card.innerHTML = `
       <div class="name-row">
-        <input class="name" value="${p.name}" data-id="${p.id}" data-field="name">
-        <span class="badge-active">Active</span>
+        <input class="name" value="${esc(p.name)}" data-id="${p.id}" data-field="name">
+        <span class="badge-active">Active turn</span>
       </div>
 
       <div class="stat-block">
@@ -1417,7 +1062,7 @@ function render(){
       </div>
 
       <div class="stat-block">
-        <div class="stat-label"><span>Corruption</span><span class="val">${p.corruption} / 5</span></div>
+        <div class="stat-label"><span>Corruption</span><span class="val">${p.corruption} / 10</span></div>
         <div class="corruption-pips">${pips}</div>
         <div class="stepper" style="margin-top:6px;">
           <button data-action="corruption" data-delta="-1" data-id="${p.id}">−1</button>
@@ -1440,7 +1085,7 @@ function render(){
       </div>
 
       <div class="hand-row">
-        <div class="stat-label" style="margin:0; flex:1;"><span>Hand size</span><span class="val">${p.hand} <span style="opacity:.6; font-family:'Inter',sans-serif; font-size:10px;">(8+ = +1 Corruption)</span></span></div>
+        <div class="stat-label" style="margin:0; flex:1;"><span>Hand <span style="opacity:.6;text-transform:none">(8+ = +1 Corr.)</span></span></div>
         <div class="stepper">
           <button data-action="hand" data-delta="-1" data-id="${p.id}">−</button>
           <input class="amt" type="number" value="${p.hand}" data-field="hand" data-id="${p.id}">
@@ -1464,6 +1109,7 @@ function render(){
   attackerSelect.value = state.players.some(p => p.id == prevAttacker) ? prevAttacker : activeId;
   renderTargetList(false);
 
+  document.getElementById('turnOrder').innerHTML = state.turnOrder.map((id,i) => { const q = getPlayer(id); return `<span class="turn-chip${i===state.activeIdx?' now':''}${q.skip?' frozen':''}">${i+1}. ${esc(q.name)}</span>`; }).join('');
   document.getElementById('endTurnBtn').disabled = !!state.winnerId;
 
   renderDeck();
@@ -1480,7 +1126,7 @@ function renderDeck(){
     const totalSum = cards.reduce((s,c)=>s+c.count,0);
 
     const details = document.createElement('details');
-    details.className = 'deck-group';
+    details.className = 'deck-group el-' + elName;
     const rowsHtml = cards.map(c => {
       const remaining = state.deckCounts[c.id] || 0;
       return `
@@ -1490,7 +1136,7 @@ function renderDeck(){
           <td class="stats">ATK ${c.atk} · DEF ${c.def} · CAP ${c.cap}</td>
           <td class="remain">
             <input type="number" value="${remaining}" data-deckcount="${c.id}" min="0">
-            <div style="font-size:10px; color:var(--parchment-dim); margin-top:2px;">of ${c.count}</div>
+            <div style="margin-top:2px;">of ${c.count}</div>
           </td>
           <td class="playcell">
             ${isQuickEligible(c)
@@ -1501,7 +1147,7 @@ function renderDeck(){
     }).join('');
 
     details.innerHTML = `
-      <summary>${elName} <span class="count-tag">${remainingSum} / ${totalSum} remaining</span></summary>
+      <summary><span class="emb emb-${elName}"></span>${elName} <span class="count-tag">${remainingSum} / ${totalSum} remaining</span></summary>
       <table class="cardtable">
         <thead><tr><th>Card</th><th>Effect</th><th>Stats</th><th>Remaining</th><th></th></tr></thead>
         <tbody>${rowsHtml}</tbody>
